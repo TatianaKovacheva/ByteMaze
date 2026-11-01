@@ -79,3 +79,6 @@ Release/
 
 # macOS
 .DS_Store
+
+# raylib library (needed to build after a fresh clone)
+!external/raylib/lib/raylib.lib
