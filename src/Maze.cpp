@@ -1,4 +1,5 @@
 // Maze.cpp - game logic.
+// Maze.cpp - game logic.
 // The functions are empty for now so the project builds.
 // Parameter names are in /* */ comments until the function uses them,
 // because Visual Studio warns about parameters that are never used.

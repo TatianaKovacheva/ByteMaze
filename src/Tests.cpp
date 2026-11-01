@@ -1,10 +1,18 @@
-// Tests.cpp - self-tests for the game logic.
+// Tests.cpp - self-tests for the game logic. Owner: Dimitar Nyagalov.
 // The functions are empty for now so the project builds.
+// Parameter names are in /* */ comments until the function uses them,
+// because Visual Studio warns about parameters that are never used.
 
 #include "Tests.h"
 
-void runAllTests()
+const char* getTestName(int /*index*/)
 {
+    return "";
+}
+
+bool runTest(int /*index*/)
+{
+    return false;
 }
 
 bool testValidSizes()
@@ -38,6 +46,11 @@ bool testExitReached()
 }
 
 bool testPathExists()
+{
+    return false;
+}
+
+bool testGeneratedCells()
 {
     return false;
 }

@@ -73,13 +73,13 @@
 		</Link>
 	</ItemDefinitionGroup>
 	<ItemGroup>
-		<ClCompile Include="src\ConsoleUI.cpp" />
+		<ClCompile Include="src\GameUI.cpp" />
 		<ClCompile Include="src\main.cpp" />
 		<ClCompile Include="src\Maze.cpp" />
 		<ClCompile Include="src\Tests.cpp" />
 	</ItemGroup>
 	<ItemGroup>
-		<ClInclude Include="src\ConsoleUI.h" />
+		<ClInclude Include="src\GameUI.h" />
 		<ClInclude Include="src\Maze.h" />
 		<ClInclude Include="src\Tests.h" />
 	</ItemGroup>
