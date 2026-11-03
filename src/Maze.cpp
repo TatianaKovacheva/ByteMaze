@@ -1,22 +1,48 @@
-// Maze.cpp - game logic.
-// The functions are empty for now so the project builds.
-// Parameter names are in /* */ comments until the function uses them,
-// because Visual Studio warns about parameters that are never used.
+// Maze.cpp - game logic: maze memory, maze generation and player movement.
+// Functions that are still empty get their code in later commits.
+// Until then their parameter names stay in /* */ comments.
 
 #include "Maze.h"
 
-char** createMaze(int /*size*/)
+char** createMaze(int size)
 {
-    return nullptr;
+    // An array of row pointers: maze[row] will point to one row.
+    char** maze = new char* [size];
+
+    for (int row = 0; row < size; row++)
+    {
+        // Every row is an array of size cells.
+        maze[row] = new char[size];
+
+        for (int col = 0; col < size; col++)
+        {
+            maze[row][col] = WALL_CELL;
+        }
+    }
+
+    return maze;
 }
 
-void destroyMaze(char** /*maze*/, int /*size*/)
+void destroyMaze(char** maze, int size)
 {
+    // Nothing to release if the maze was never created.
+    if (maze == nullptr)
+    {
+        return;
+    }
+
+    // First every row, then the array of row pointers.
+    for (int row = 0; row < size; row++)
+    {
+        delete[] maze[row];
+    }
+
+    delete[] maze;
 }
 
-bool isValidSize(int /*size*/)
+bool isValidSize(int size)
 {
-    return false;
+    return size >= MIN_MAZE_SIZE && size <= MAX_MAZE_SIZE;
 }
 
 void generateMaze(char** /*maze*/, int /*size*/)
