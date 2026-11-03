@@ -6,6 +6,9 @@
 
 #include <cstdlib>
 
+// Chance in percent that a wall outside the path becomes an open cell.
+const int OPEN_CELL_CHANCE = 60;
+
 char** createMaze(int size)
 {
     // An array of row pointers: maze[row] will point to one row.
@@ -88,6 +91,21 @@ void carvePath(char** maze, int size)
     }
 }
 
+// Turns some of the walls outside the path into open cells at random.
+void openRandomCells(char** maze, int size)
+{
+    for (int row = 0; row < size; row++)
+    {
+        for (int col = 0; col < size; col++)
+        {
+            if (maze[row][col] == WALL_CELL && rand() % 100 < OPEN_CELL_CHANCE)
+            {
+                maze[row][col] = OPEN_CELL;
+            }
+        }
+    }
+}
+
 void generateMaze(char** maze, int size)
 {
     // Start again from a maze full of walls.
@@ -100,6 +118,7 @@ void generateMaze(char** maze, int size)
     }
 
     carvePath(maze, size);
+    openRandomCells(maze, size);
 }
 
 bool isInside(int /*size*/, int /*row*/, int /*col*/)
