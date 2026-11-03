@@ -4,6 +4,11 @@
 
 #include "Maze.h"
 
+#include <cstdlib>
+
+// Chance in percent that a wall outside the path becomes an open cell.
+const int OPEN_CELL_CHANCE = 60;
+
 char** createMaze(int size)
 {
     // An array of row pointers: maze[row] will point to one row.
@@ -45,8 +50,78 @@ bool isValidSize(int size)
     return size >= MIN_MAZE_SIZE && size <= MAX_MAZE_SIZE;
 }
 
-void generateMaze(char** /*maze*/, int /*size*/)
+// Opens a random path of right and down steps from (0,0) to the bottom-right corner.
+// Because of this path the exit can always be reached.
+void carvePath(char** maze, int size)
 {
+    int row = 0;
+    int col = 0;
+    maze[row][col] = OPEN_CELL;
+
+    while (row < size - 1 || col < size - 1)
+    {
+        bool goRight;
+
+        if (row == size - 1)
+        {
+            // Already in the last row: only right is possible.
+            goRight = true;
+        }
+        else if (col == size - 1)
+        {
+            // Already in the last column: only down is possible.
+            goRight = false;
+        }
+        else
+        {
+            // Otherwise choose right or down at random.
+            goRight = rand() % 2 == 0;
+        }
+
+        if (goRight)
+        {
+            col++;
+        }
+        else
+        {
+            row++;
+        }
+
+        maze[row][col] = OPEN_CELL;
+    }
+}
+
+// Turns some of the walls outside the path into open cells at random.
+void openRandomCells(char** maze, int size)
+{
+    for (int row = 0; row < size; row++)
+    {
+        for (int col = 0; col < size; col++)
+        {
+            if (maze[row][col] == WALL_CELL && rand() % 100 < OPEN_CELL_CHANCE)
+            {
+                maze[row][col] = OPEN_CELL;
+            }
+        }
+    }
+}
+
+void generateMaze(char** maze, int size)
+{
+    // Start again from a maze full of walls.
+    for (int row = 0; row < size; row++)
+    {
+        for (int col = 0; col < size; col++)
+        {
+            maze[row][col] = WALL_CELL;
+        }
+    }
+
+    carvePath(maze, size);
+    openRandomCells(maze, size);
+
+    // The exit is always in the bottom-right corner.
+    maze[size - 1][size - 1] = EXIT_CELL;
 }
 
 bool isInside(int /*size*/, int /*row*/, int /*col*/)
