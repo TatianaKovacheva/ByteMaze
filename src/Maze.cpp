@@ -119,6 +119,9 @@ void generateMaze(char** maze, int size)
 
     carvePath(maze, size);
     openRandomCells(maze, size);
+
+    // The exit is always in the bottom-right corner.
+    maze[size - 1][size - 1] = EXIT_CELL;
 }
 
 bool isInside(int /*size*/, int /*row*/, int /*col*/)
