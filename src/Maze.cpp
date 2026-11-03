@@ -40,9 +40,9 @@ void destroyMaze(char** maze, int size)
     delete[] maze;
 }
 
-bool isValidSize(int /*size*/)
+bool isValidSize(int size)
 {
-    return false;
+    return size >= MIN_MAZE_SIZE && size <= MAX_MAZE_SIZE;
 }
 
 void generateMaze(char** /*maze*/, int /*size*/)
