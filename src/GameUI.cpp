@@ -1,4 +1,4 @@
-// GameUI.cpp - raylib drawing and keyboard input.
+// GameUI.cpp - raylib drawing and keyboard input. Owner: Plamen Rusev.
 // Every function either draws one part of a screen or checks the keyboard.
 // No function waits for a key: raylib calls them again in every frame.
 // Functions that are still empty get their code in later commits.
@@ -27,6 +27,24 @@ void drawMenuScreen()
 
 int readMenuChoice()
 {
+    if (IsKeyPressed(KEY_ONE))
+    {
+        return MENU_NEW_GAME;
+    }
+    if (IsKeyPressed(KEY_TWO))
+    {
+        return MENU_HELP;
+    }
+    if (IsKeyPressed(KEY_THREE))
+    {
+        return MENU_SELF_TEST;
+    }
+    if (IsKeyPressed(KEY_ZERO))
+    {
+        return MENU_EXIT;
+    }
+
+    // No menu key was pressed in this frame.
     return MENU_NONE;
 }
 
