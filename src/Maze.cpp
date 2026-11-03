@@ -23,8 +23,21 @@ char** createMaze(int size)
     return maze;
 }
 
-void destroyMaze(char** /*maze*/, int /*size*/)
+void destroyMaze(char** maze, int size)
 {
+    // Nothing to release if the maze was never created.
+    if (maze == nullptr)
+    {
+        return;
+    }
+
+    // First every row, then the array of row pointers.
+    for (int row = 0; row < size; row++)
+    {
+        delete[] maze[row];
+    }
+
+    delete[] maze;
 }
 
 bool isValidSize(int /*size*/)
