@@ -1,12 +1,28 @@
-// GameUI.cpp - raylib drawing and keyboard input. Owner: Plamen Rusev.
-// The functions are empty for now so the project builds.
-// Parameter names are in /* */ comments until the function uses them,
-// because Visual Studio warns about parameters that are never used.
+// GameUI.cpp - raylib drawing and keyboard input.
+// Every function either draws one part of a screen or checks the keyboard.
+// No function waits for a key: raylib calls them again in every frame.
+// Functions that are still empty get their code in later commits.
+// Until then their parameter names stay in /* */ comments.
 
 #include "GameUI.h"
+#include "Maze.h"
+#include "raylib.h"
+
+// Text sizes in pixels.
+const int TITLE_SIZE = 60;
+const int TEXT_SIZE = 30;
+const int SMALL_TEXT_SIZE = 20;
 
 void drawMenuScreen()
 {
+    ClearBackground(RAYWHITE);
+
+    DrawText("ByteMaze", 310, 120, TITLE_SIZE, DARKBLUE);
+    DrawText("1 - New game", 330, 260, TEXT_SIZE, DARKGRAY);
+    DrawText("2 - Help", 330, 310, TEXT_SIZE, DARKGRAY);
+    DrawText("3 - Self-tests", 330, 360, TEXT_SIZE, DARKGRAY);
+    DrawText("0 - Exit", 330, 410, TEXT_SIZE, DARKGRAY);
+    DrawText("Press a number key.", 330, 500, SMALL_TEXT_SIZE, GRAY);
 }
 
 int readMenuChoice()
