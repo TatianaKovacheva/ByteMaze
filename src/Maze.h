@@ -15,7 +15,6 @@ const char EXIT_CELL = 'E';
 // Directions the player can move in.
 // DIRECTION_NONE means that no movement key was pressed in this frame.
 const int DIRECTION_NONE = 0;
-const int DIRECTION_NONE = 0;
 const int DIRECTION_UP = 1;
 const int DIRECTION_DOWN = 2;
 const int DIRECTION_LEFT = 3;
