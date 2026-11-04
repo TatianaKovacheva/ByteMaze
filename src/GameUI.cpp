@@ -1,4 +1,4 @@
-// GameUI.cpp - raylib drawing and keyboard input. Owner: Plamen Rusev.
+// GameUI.cpp - raylib drawing and keyboard input.
 // Every function either draws one part of a screen or checks the keyboard.
 // No function waits for a key: raylib calls them again in every frame.
 // Functions that are still empty get their code in later commits.
@@ -17,6 +17,9 @@ const int SMALL_TEXT_SIZE = 20;
 const int MAZE_LEFT = 20;
 const int MAZE_TOP = 20;
 const int MAZE_AREA_SIZE = 650;
+
+// The information panel on the right of the maze.
+const int PANEL_LEFT = 690;
 
 void drawMenuScreen()
 {
@@ -179,6 +182,16 @@ void drawPlayer(int size, int playerRow, int playerCol)
 
 void drawLegend()
 {
+    DrawText("Map", PANEL_LEFT, 20, TEXT_SIZE, DARKBLUE);
+    DrawText("#  wall", PANEL_LEFT, 60, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText(".  open cell", PANEL_LEFT, 85, SMALL_TEXT_SIZE, GRAY);
+    DrawText("E  exit", PANEL_LEFT, 110, SMALL_TEXT_SIZE, DARKGREEN);
+    DrawText("P  you", PANEL_LEFT, 135, SMALL_TEXT_SIZE, RED);
+
+    DrawText("Keys", PANEL_LEFT, 185, TEXT_SIZE, DARKBLUE);
+    DrawText("Arrows or", PANEL_LEFT, 225, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText("W, A, S, D", PANEL_LEFT, 250, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText("Q - menu", PANEL_LEFT, 275, SMALL_TEXT_SIZE, DARKGRAY);
 }
 
 void drawPlayerInfo(int /*playerRow*/, int /*playerCol*/, int /*moveCount*/)
