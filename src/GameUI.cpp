@@ -96,8 +96,31 @@ bool readSizeInput(int& typedSize)
     return IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER);
 }
 
-void drawSizeScreen(int /*typedSize*/, bool /*showError*/)
+void drawSizeScreen(int typedSize, bool showError)
 {
+    ClearBackground(RAYWHITE);
+
+    DrawText("Choose the maze size", 160, 120, TEXT_SIZE + 10, DARKBLUE);
+    DrawText(TextFormat("Type a number from %d to %d and press Enter.", MIN_MAZE_SIZE, MAX_MAZE_SIZE),
+        160, 200, SMALL_TEXT_SIZE, DARKGRAY);
+
+    // Show the typed number, or a line when nothing is typed yet.
+    if (typedSize > 0)
+    {
+        DrawText(TextFormat("%d", typedSize), 400, 280, TITLE_SIZE, BLACK);
+    }
+    else
+    {
+        DrawText("_", 400, 280, TITLE_SIZE, BLACK);
+    }
+
+    if (showError)
+    {
+        DrawText(TextFormat("The size must be from %d to %d.", MIN_MAZE_SIZE, MAX_MAZE_SIZE),
+            160, 380, SMALL_TEXT_SIZE, RED);
+    }
+
+    DrawText("Backspace - delete     Q - back to the menu", 160, 600, SMALL_TEXT_SIZE, GRAY);
 }
 
 int readDirection()
