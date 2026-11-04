@@ -1,4 +1,4 @@
-// GameUI.cpp - raylib drawing and keyboard input. Owner: Plamen Rusev.
+// GameUI.cpp - raylib drawing and keyboard input. 
 // Every function either draws one part of a screen or checks the keyboard.
 // No function waits for a key: raylib calls them again in every frame.
 // Functions that are still empty get their code in later commits.
@@ -50,11 +50,27 @@ int readMenuChoice()
 
 void drawHelpScreen()
 {
+    ClearBackground(RAYWHITE);
+
+    DrawText("How to play", 100, 60, TEXT_SIZE + 10, DARKBLUE);
+    DrawText("Start in the top-left corner and find the exit E", 100, 140, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText("in the bottom-right corner.", 100, 170, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText("You cannot walk through walls.", 100, 200, SMALL_TEXT_SIZE, DARKGRAY);
+
+    DrawText("Map symbols", 100, 260, TEXT_SIZE, DARKBLUE);
+    DrawText("#  wall", 100, 310, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText(".  open cell", 100, 340, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText("E  exit", 100, 370, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText("P  player", 100, 400, SMALL_TEXT_SIZE, DARKGRAY);
+
+    DrawText("Controls", 100, 460, TEXT_SIZE, DARKBLUE);
+    DrawText("Arrow keys or W, A, S, D - move", 100, 510, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText("Q - back to the menu", 100, 540, SMALL_TEXT_SIZE, DARKGRAY);
 }
 
 bool readBackKey()
 {
-    return false;
+    return IsKeyPressed(KEY_Q);
 }
 
 bool readSizeInput(int& /*typedSize*/)
