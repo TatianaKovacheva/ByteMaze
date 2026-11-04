@@ -1,4 +1,4 @@
-// GameUI.cpp - raylib drawing and keyboard input. 
+// GameUI.cpp - raylib drawing and keyboard input.
 // Every function either draws one part of a screen or checks the keyboard.
 // No function waits for a key: raylib calls them again in every frame.
 // Functions that are still empty get their code in later commits.
@@ -73,9 +73,27 @@ bool readBackKey()
     return IsKeyPressed(KEY_Q);
 }
 
-bool readSizeInput(int& /*typedSize*/)
+bool readSizeInput(int& typedSize)
 {
-    return false;
+    // GetCharPressed returns the typed characters one by one, then 0.
+    int key = GetCharPressed();
+    while (key > 0)
+    {
+        // Only digits are accepted, and at most 3 of them.
+        if (key >= '0' && key <= '9' && typedSize < 100)
+        {
+            typedSize = typedSize * 10 + (key - '0');
+        }
+        key = GetCharPressed();
+    }
+
+    // Backspace removes the last digit.
+    if (IsKeyPressed(KEY_BACKSPACE))
+    {
+        typedSize = typedSize / 10;
+    }
+
+    return IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER);
 }
 
 void drawSizeScreen(int /*typedSize*/, bool /*showError*/)
