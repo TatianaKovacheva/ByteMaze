@@ -166,8 +166,15 @@ void drawMaze(char** maze, int size)
     }
 }
 
-void drawPlayer(int /*size*/, int /*playerRow*/, int /*playerCol*/)
+void drawPlayer(int size, int playerRow, int playerCol)
 {
+    int cellSize = getCellSize(size);
+    int x = MAZE_LEFT + playerCol * cellSize;
+    int y = MAZE_TOP + playerRow * cellSize;
+
+    // Cover the symbol of the cell, then draw P on top.
+    DrawRectangle(x, y, cellSize, cellSize, RAYWHITE);
+    DrawText("P", x, y, cellSize, RED);
 }
 
 void drawLegend()
