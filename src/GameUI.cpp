@@ -1,4 +1,4 @@
-// GameUI.cpp - raylib drawing and keyboard input.
+// GameUI.cpp - raylib drawing and keyboard input. Owner: Plamen Rusev.
 // Every function either draws one part of a screen or checks the keyboard.
 // No function waits for a key: raylib calls them again in every frame.
 // Functions that are still empty get their code in later commits.
@@ -12,6 +12,11 @@
 const int TITLE_SIZE = 60;
 const int TEXT_SIZE = 30;
 const int SMALL_TEXT_SIZE = 20;
+
+// The maze is drawn in a square in the top-left part of the window.
+const int MAZE_LEFT = 20;
+const int MAZE_TOP = 20;
+const int MAZE_AREA_SIZE = 650;
 
 void drawMenuScreen()
 {
@@ -128,8 +133,37 @@ int readDirection()
     return COMMAND_QUIT;
 }
 
-void drawMaze(char** /*maze*/, int /*size*/)
+// Width and height of one cell in pixels, so that the whole maze fits in MAZE_AREA_SIZE.
+int getCellSize(int size)
 {
+    return MAZE_AREA_SIZE / size;
+}
+
+void drawMaze(char** maze, int size)
+{
+    ClearBackground(RAYWHITE);
+    int cellSize = getCellSize(size);
+
+    // From the top row to the bottom row, every cell is drawn as its symbol.
+    for (int row = 0; row < size; row++)
+    {
+        for (int col = 0; col < size; col++)
+        {
+            char symbol[2] = { maze[row][col], '\0' };
+
+            Color color = DARKGRAY;
+            if (maze[row][col] == OPEN_CELL)
+            {
+                color = GRAY;
+            }
+            else if (maze[row][col] == EXIT_CELL)
+            {
+                color = DARKGREEN;
+            }
+
+            DrawText(symbol, MAZE_LEFT + col * cellSize, MAZE_TOP + row * cellSize, cellSize, color);
+        }
+    }
 }
 
 void drawPlayer(int /*size*/, int /*playerRow*/, int /*playerCol*/)
