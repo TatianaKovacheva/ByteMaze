@@ -226,8 +226,13 @@ void drawCellInfo(char** maze, int size, int row, int col)
     DrawText(description, PANEL_LEFT, 495, SMALL_TEXT_SIZE, DARKGRAY);
 }
 
-void drawWinScreen(int /*moveCount*/)
+void drawWinScreen(int moveCount)
 {
+    ClearBackground(RAYWHITE);
+
+    DrawText("You found the exit!", 160, 200, TEXT_SIZE + 10, DARKGREEN);
+    DrawText(TextFormat("Moves: %d", moveCount), 160, 280, TEXT_SIZE, DARKGRAY);
+    DrawText("Q - back to the menu", 160, 380, SMALL_TEXT_SIZE, GRAY);
 }
 
 void drawTestScreen(const bool /*results*/[])
