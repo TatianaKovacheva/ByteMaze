@@ -194,8 +194,12 @@ void drawLegend()
     DrawText("Q - menu", PANEL_LEFT, 275, SMALL_TEXT_SIZE, DARKGRAY);
 }
 
-void drawPlayerInfo(int /*playerRow*/, int /*playerCol*/, int /*moveCount*/)
+void drawPlayerInfo(int playerRow, int playerCol, int moveCount)
 {
+    DrawText("Position", PANEL_LEFT, 330, TEXT_SIZE, DARKBLUE);
+    DrawText(TextFormat("Row: %d", playerRow), PANEL_LEFT, 370, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText(TextFormat("Column: %d", playerCol), PANEL_LEFT, 395, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText(TextFormat("Moves: %d", moveCount), PANEL_LEFT, 420, SMALL_TEXT_SIZE, DARKGRAY);
 }
 
 void drawCellInfo(char** /*maze*/, int /*size*/, int /*row*/, int /*col*/)
