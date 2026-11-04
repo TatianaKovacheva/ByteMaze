@@ -202,8 +202,28 @@ void drawPlayerInfo(int playerRow, int playerCol, int moveCount)
     DrawText(TextFormat("Moves: %d", moveCount), PANEL_LEFT, 420, SMALL_TEXT_SIZE, DARKGRAY);
 }
 
-void drawCellInfo(char** /*maze*/, int /*size*/, int /*row*/, int /*col*/)
+void drawCellInfo(char** maze, int size, int row, int col)
 {
+    const char* description = "outside the maze";
+
+    if (isInside(size, row, col))
+    {
+        if (maze[row][col] == WALL_CELL)
+        {
+            description = "a wall";
+        }
+        else if (maze[row][col] == OPEN_CELL)
+        {
+            description = "an open cell";
+        }
+        else if (maze[row][col] == EXIT_CELL)
+        {
+            description = "the exit";
+        }
+    }
+
+    DrawText(TextFormat("Cell (%d, %d) is", row, col), PANEL_LEFT, 470, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText(description, PANEL_LEFT, 495, SMALL_TEXT_SIZE, DARKGRAY);
 }
 
 void drawWinScreen(int /*moveCount*/)
