@@ -13,6 +13,14 @@ const int TITLE_SIZE = 60;
 const int TEXT_SIZE = 30;
 const int SMALL_TEXT_SIZE = 20;
 
+// The maze is drawn in a square in the top-left part of the window.
+const int MAZE_LEFT = 20;
+const int MAZE_TOP = 20;
+const int MAZE_AREA_SIZE = 650;
+
+// The information panel on the right of the maze.
+const int PANEL_LEFT = 690;
+
 void drawMenuScreen()
 {
     ClearBackground(RAYWHITE);
@@ -128,28 +136,103 @@ int readDirection()
     return COMMAND_QUIT;
 }
 
-void drawMaze(char** /*maze*/, int /*size*/)
+// Width and height of one cell in pixels, so that the whole maze fits in MAZE_AREA_SIZE.
+int getCellSize(int size)
 {
+    return MAZE_AREA_SIZE / size;
 }
 
-void drawPlayer(int /*size*/, int /*playerRow*/, int /*playerCol*/)
+void drawMaze(char** maze, int size)
 {
+    ClearBackground(RAYWHITE);
+    int cellSize = getCellSize(size);
+
+    // From the top row to the bottom row, every cell is drawn as its symbol.
+    for (int row = 0; row < size; row++)
+    {
+        for (int col = 0; col < size; col++)
+        {
+            char symbol[2] = { maze[row][col], '\0' };
+
+            Color color = DARKGRAY;
+            if (maze[row][col] == OPEN_CELL)
+            {
+                color = GRAY;
+            }
+            else if (maze[row][col] == EXIT_CELL)
+            {
+                color = DARKGREEN;
+            }
+
+            DrawText(symbol, MAZE_LEFT + col * cellSize, MAZE_TOP + row * cellSize, cellSize, color);
+        }
+    }
+}
+
+void drawPlayer(int size, int playerRow, int playerCol)
+{
+    int cellSize = getCellSize(size);
+    int x = MAZE_LEFT + playerCol * cellSize;
+    int y = MAZE_TOP + playerRow * cellSize;
+
+    // Cover the symbol of the cell, then draw P on top.
+    DrawRectangle(x, y, cellSize, cellSize, RAYWHITE);
+    DrawText("P", x, y, cellSize, RED);
 }
 
 void drawLegend()
 {
+    DrawText("Map", PANEL_LEFT, 20, TEXT_SIZE, DARKBLUE);
+    DrawText("#  wall", PANEL_LEFT, 60, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText(".  open cell", PANEL_LEFT, 85, SMALL_TEXT_SIZE, GRAY);
+    DrawText("E  exit", PANEL_LEFT, 110, SMALL_TEXT_SIZE, DARKGREEN);
+    DrawText("P  you", PANEL_LEFT, 135, SMALL_TEXT_SIZE, RED);
+
+    DrawText("Keys", PANEL_LEFT, 185, TEXT_SIZE, DARKBLUE);
+    DrawText("Arrows or", PANEL_LEFT, 225, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText("W, A, S, D", PANEL_LEFT, 250, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText("Q - menu", PANEL_LEFT, 275, SMALL_TEXT_SIZE, DARKGRAY);
 }
 
-void drawPlayerInfo(int /*playerRow*/, int /*playerCol*/, int /*moveCount*/)
+void drawPlayerInfo(int playerRow, int playerCol, int moveCount)
 {
+    DrawText("Position", PANEL_LEFT, 330, TEXT_SIZE, DARKBLUE);
+    DrawText(TextFormat("Row: %d", playerRow), PANEL_LEFT, 370, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText(TextFormat("Column: %d", playerCol), PANEL_LEFT, 395, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText(TextFormat("Moves: %d", moveCount), PANEL_LEFT, 420, SMALL_TEXT_SIZE, DARKGRAY);
 }
 
-void drawCellInfo(char** /*maze*/, int /*size*/, int /*row*/, int /*col*/)
+void drawCellInfo(char** maze, int size, int row, int col)
 {
+    const char* description = "outside the maze";
+
+    if (isInside(size, row, col))
+    {
+        if (maze[row][col] == WALL_CELL)
+        {
+            description = "a wall";
+        }
+        else if (maze[row][col] == OPEN_CELL)
+        {
+            description = "an open cell";
+        }
+        else if (maze[row][col] == EXIT_CELL)
+        {
+            description = "the exit";
+        }
+    }
+
+    DrawText(TextFormat("Cell (%d, %d) is", row, col), PANEL_LEFT, 470, SMALL_TEXT_SIZE, DARKGRAY);
+    DrawText(description, PANEL_LEFT, 495, SMALL_TEXT_SIZE, DARKGRAY);
 }
 
-void drawWinScreen(int /*moveCount*/)
+void drawWinScreen(int moveCount)
 {
+    ClearBackground(RAYWHITE);
+
+    DrawText("You found the exit!", 160, 200, TEXT_SIZE + 10, DARKGREEN);
+    DrawText(TextFormat("Moves: %d", moveCount), 160, 280, TEXT_SIZE, DARKGRAY);
+    DrawText("Q - back to the menu", 160, 380, SMALL_TEXT_SIZE, GRAY);
 }
 
 void drawTestScreen(const bool /*results*/[])
