@@ -57,7 +57,14 @@ bool runTest(int index)
 
 bool testValidSizes()
 {
-    return false;
+    // The two limits are allowed.
+    bool limitsAccepted = isValidSize(MIN_MAZE_SIZE) && isValidSize(MAX_MAZE_SIZE);
+
+    // One below, one above, zero and a negative number are not allowed.
+    bool othersRejected = !isValidSize(MIN_MAZE_SIZE - 1) && !isValidSize(MAX_MAZE_SIZE + 1)
+        && !isValidSize(0) && !isValidSize(-5);
+
+    return limitsAccepted && othersRejected;
 }
 
 bool testCreateAndDestroy()
