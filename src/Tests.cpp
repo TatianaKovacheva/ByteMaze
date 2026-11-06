@@ -5,6 +5,11 @@
 #include "Tests.h"
 #include "Maze.h"
 
+// The Visual Studio debug heap can count the memory blocks that are in use.
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
+
 const char* getTestName(int index)
 {
     switch (index)
@@ -69,7 +74,45 @@ bool testValidSizes()
 
 bool testCreateAndDestroy()
 {
-    return false;
+#if defined(_MSC_VER) && defined(_DEBUG)
+    // Remember which memory is in use before the test.
+    _CrtMemState before;
+    _CrtMemCheckpoint(&before);
+#endif
+
+    char** maze = createMaze(MIN_MAZE_SIZE);
+    if (maze == nullptr)
+    {
+        return false;
+    }
+
+    // A new maze must be full of walls.
+    bool allWalls = true;
+    for (int row = 0; row < MIN_MAZE_SIZE; row++)
+    {
+        for (int col = 0; col < MIN_MAZE_SIZE; col++)
+        {
+            if (maze[row][col] != WALL_CELL)
+            {
+                allWalls = false;
+            }
+        }
+    }
+
+    destroyMaze(maze, MIN_MAZE_SIZE);
+
+#if defined(_MSC_VER) && defined(_DEBUG)
+    // After destroyMaze exactly the same memory must be in use as before.
+    _CrtMemState after;
+    _CrtMemState difference;
+    _CrtMemCheckpoint(&after);
+    if (_CrtMemDifference(&difference, &before, &after))
+    {
+        return false;
+    }
+#endif
+
+    return allWalls;
 }
 
 bool testWallBlocksMove()
