@@ -135,10 +135,28 @@ bool canMoveTo(char** maze, int size, int row, int col)
     return isInside(size, row, col) && maze[row][col] != WALL_CELL;
 }
 
-void getTargetPosition(int row, int col, int /*direction*/, int& targetRow, int& targetCol)
+void getTargetPosition(int row, int col, int direction, int& targetRow, int& targetCol)
 {
+    // Start from the current cell, then change one coordinate.
     targetRow = row;
     targetCol = col;
+
+    if (direction == DIRECTION_UP)
+    {
+        targetRow = row - 1;
+    }
+    else if (direction == DIRECTION_DOWN)
+    {
+        targetRow = row + 1;
+    }
+    else if (direction == DIRECTION_LEFT)
+    {
+        targetCol = col - 1;
+    }
+    else if (direction == DIRECTION_RIGHT)
+    {
+        targetCol = col + 1;
+    }
 }
 
 bool movePlayer(char** /*maze*/, int /*size*/, int& /*playerRow*/, int& /*playerCol*/, int /*direction*/)
