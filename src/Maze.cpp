@@ -124,9 +124,9 @@ void generateMaze(char** maze, int size)
     maze[size - 1][size - 1] = EXIT_CELL;
 }
 
-bool isInside(int /*size*/, int /*row*/, int /*col*/)
+bool isInside(int size, int row, int col)
 {
-    return false;
+    return row >= 0 && row < size && col >= 0 && col < size;
 }
 
 bool canMoveTo(char** /*maze*/, int /*size*/, int /*row*/, int /*col*/)
