@@ -129,9 +129,10 @@ bool isInside(int size, int row, int col)
     return row >= 0 && row < size && col >= 0 && col < size;
 }
 
-bool canMoveTo(char** /*maze*/, int /*size*/, int /*row*/, int /*col*/)
+bool canMoveTo(char** maze, int size, int row, int col)
 {
-    return false;
+    // isInside is checked first, so maze[row][col] is never read outside the array.
+    return isInside(size, row, col) && maze[row][col] != WALL_CELL;
 }
 
 void getTargetPosition(int row, int col, int /*direction*/, int& targetRow, int& targetCol)
