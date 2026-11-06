@@ -1,12 +1,27 @@
-// main.cpp - entry point of the ByteMaze game.
-// For now it only prints the title; the menu and the game loop come later.
+#include "GameUI.h"
+#include "raylib.h"
 
-#include <iostream>
-
-using namespace std;
+#include <cstdlib>
+#include <ctime>
 
 int main()
 {
-    cout << "ByteMaze - a C++ maze game" << endl;
+    // A different random maze every time the program runs.
+    srand((unsigned int)time(nullptr));
+
+    // Show only warnings and errors from raylib in the console.
+    SetTraceLogLevel(LOG_WARNING);
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "ByteMaze");
+    SetTargetFPS(60);
+
+    // One pass of this loop is one frame: 60 frames per second.
+    while (!WindowShouldClose())
+    {
+        BeginDrawing();
+        drawMenuScreen();
+        EndDrawing();
+    }
+
+    CloseWindow();
     return 0;
 }
