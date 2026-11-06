@@ -1,18 +1,58 @@
-// Tests.cpp - self-tests for the game logic. Owner: Dimitar Nyagalov.
-// The functions are empty for now so the project builds.
-// Parameter names are in /* */ comments until the function uses them,
-// because Visual Studio warns about parameters that are never used.
+// Tests.cpp - self-tests for the game logic.
+// Every test returns true if it passed. GameUI shows the results on the test screen.
+// Tests that are still empty return false until they get their code.
 
 #include "Tests.h"
+#include "Maze.h"
 
-const char* getTestName(int /*index*/)
+const char* getTestName(int index)
 {
-    return "";
+    switch (index)
+    {
+    case 0:
+        return "Valid and invalid maze sizes";
+    case 1:
+        return "Maze memory is created and released";
+    case 2:
+        return "A wall blocks the player";
+    case 3:
+        return "The player can enter an open cell";
+    case 4:
+        return "The edge of the maze blocks the player";
+    case 5:
+        return "The exit is detected";
+    case 6:
+        return "Every generated maze can be solved";
+    case 7:
+        return "Start and exit of a generated maze";
+    default:
+        return "Unknown test";
+    }
 }
 
-bool runTest(int /*index*/)
+bool runTest(int index)
 {
-    return false;
+    switch (index)
+    {
+    case 0:
+        return testValidSizes();
+    case 1:
+        return testCreateAndDestroy();
+    case 2:
+        return testWallBlocksMove();
+    case 3:
+        return testValidMove();
+    case 4:
+        return testMoveOutsideMaze();
+    case 5:
+        return testExitReached();
+    case 6:
+        return testPathExists();
+    case 7:
+        return testGeneratedCells();
+    default:
+        return false;
+    }
 }
 
 bool testValidSizes()
