@@ -175,7 +175,13 @@ bool testMoveOutsideMaze()
 
 bool testExitReached()
 {
-    return false;
+    int last = MIN_MAZE_SIZE - 1;
+
+    // Only the bottom-right corner is the exit, not the other three corners.
+    return isAtExit(MIN_MAZE_SIZE, last, last)
+        && !isAtExit(MIN_MAZE_SIZE, 0, 0)
+        && !isAtExit(MIN_MAZE_SIZE, last, 0)
+        && !isAtExit(MIN_MAZE_SIZE, 0, last);
 }
 
 bool testPathExists()
