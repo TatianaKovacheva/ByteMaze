@@ -145,7 +145,16 @@ bool testWallBlocksMove()
 
 bool testValidMove()
 {
-    return false;
+    char** maze = createTestMaze();
+    int row = 0;
+    int col = 0;
+
+    // (0,1) on the right is open.
+    bool moved = movePlayer(maze, MIN_MAZE_SIZE, row, col, DIRECTION_RIGHT);
+    bool positionChanged = row == 0 && col == 1;
+
+    destroyMaze(maze, MIN_MAZE_SIZE);
+    return moved && positionChanged;
 }
 
 bool testMoveOutsideMaze()
