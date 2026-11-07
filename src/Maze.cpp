@@ -1,6 +1,4 @@
 // Maze.cpp - game logic: maze memory, maze generation and player movement.
-// Functions that are still empty get their code in later commits.
-// Until then their parameter names stay in /* */ comments.
 
 #include "Maze.h"
 
@@ -182,7 +180,7 @@ bool movePlayer(char** maze, int size, int& playerRow, int& playerCol, int direc
     return true;
 }
 
-bool isAtExit(int /*size*/, int /*row*/, int /*col*/)
+bool isAtExit(int size, int row, int col)
 {
-    return false;
+    return row == size - 1 && col == size - 1;
 }
