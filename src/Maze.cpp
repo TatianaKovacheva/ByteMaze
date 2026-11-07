@@ -1,6 +1,4 @@
 // Maze.cpp - game logic: maze memory, maze generation and player movement.
-// Functions that are still empty get their code in later commits.
-// Until then their parameter names stay in /* */ comments.
 
 #include "Maze.h"
 
@@ -124,28 +122,65 @@ void generateMaze(char** maze, int size)
     maze[size - 1][size - 1] = EXIT_CELL;
 }
 
-bool isInside(int /*size*/, int /*row*/, int /*col*/)
+bool isInside(int size, int row, int col)
 {
-    return false;
+    return row >= 0 && row < size && col >= 0 && col < size;
 }
 
-bool canMoveTo(char** /*maze*/, int /*size*/, int /*row*/, int /*col*/)
+bool canMoveTo(char** maze, int size, int row, int col)
 {
-    return false;
+    // isInside is checked first, so maze[row][col] is never read outside the array.
+    return isInside(size, row, col) && maze[row][col] != WALL_CELL;
 }
 
-void getTargetPosition(int row, int col, int /*direction*/, int& targetRow, int& targetCol)
+void getTargetPosition(int row, int col, int direction, int& targetRow, int& targetCol)
 {
+    // Start from the current cell, then change one coordinate.
     targetRow = row;
     targetCol = col;
+
+    if (direction == DIRECTION_UP)
+    {
+        targetRow = row - 1;
+    }
+    else if (direction == DIRECTION_DOWN)
+    {
+        targetRow = row + 1;
+    }
+    else if (direction == DIRECTION_LEFT)
+    {
+        targetCol = col - 1;
+    }
+    else if (direction == DIRECTION_RIGHT)
+    {
+        targetCol = col + 1;
+    }
 }
 
-bool movePlayer(char** /*maze*/, int /*size*/, int& /*playerRow*/, int& /*playerCol*/, int /*direction*/)
+bool movePlayer(char** maze, int size, int& playerRow, int& playerCol, int direction)
 {
-    return false;
+    // Only the four directions move the player. DIRECTION_NONE is not a move.
+    if (direction < DIRECTION_UP || direction > DIRECTION_RIGHT)
+    {
+        return false;
+    }
+
+    int targetRow;
+    int targetCol;
+    getTargetPosition(playerRow, playerCol, direction, targetRow, targetCol);
+
+    // A wall or the edge of the maze blocks the move.
+    if (!canMoveTo(maze, size, targetRow, targetCol))
+    {
+        return false;
+    }
+
+    playerRow = targetRow;
+    playerCol = targetCol;
+    return true;
 }
 
-bool isAtExit(int /*size*/, int /*row*/, int /*col*/)
+bool isAtExit(int size, int row, int col)
 {
-    return false;
+    return row == size - 1 && col == size - 1;
 }
