@@ -184,9 +184,68 @@ bool testExitReached()
         && !isAtExit(MIN_MAZE_SIZE, 0, last);
 }
 
+// Recursive flood fill: visits every open cell that can be reached from (row, col).
+// Returns true as soon as the exit is reached.
+bool canReachExit(char** maze, bool** visited, int size, int row, int col)
+{
+    // Stop at walls, outside the maze and at cells that were already visited.
+    if (!canMoveTo(maze, size, row, col) || visited[row][col])
+    {
+        return false;
+    }
+
+    visited[row][col] = true;
+
+    if (isAtExit(size, row, col))
+    {
+        return true;
+    }
+
+    // The function calls itself for the four neighbours.
+    return canReachExit(maze, visited, size, row - 1, col)
+        || canReachExit(maze, visited, size, row + 1, col)
+        || canReachExit(maze, visited, size, row, col - 1)
+        || canReachExit(maze, visited, size, row, col + 1);
+}
+
 bool testPathExists()
 {
-    return false;
+    // 3 random mazes of every size from 10 to 50.
+    for (int size = MIN_MAZE_SIZE; size <= MAX_MAZE_SIZE; size++)
+    {
+        for (int round = 0; round < 3; round++)
+        {
+            char** maze = createMaze(size);
+            generateMaze(maze, size);
+
+            // visited[row][col] becomes true when the flood fill reaches the cell.
+            bool** visited = new bool* [size];
+            for (int row = 0; row < size; row++)
+            {
+                visited[row] = new bool[size];
+                for (int col = 0; col < size; col++)
+                {
+                    visited[row][col] = false;
+                }
+            }
+
+            bool reached = canReachExit(maze, visited, size, 0, 0);
+
+            for (int row = 0; row < size; row++)
+            {
+                delete[] visited[row];
+            }
+            delete[] visited;
+            destroyMaze(maze, size);
+
+            if (!reached)
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 bool testGeneratedCells()
