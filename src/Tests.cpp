@@ -1,6 +1,5 @@
 // Tests.cpp - self-tests for the game logic.
 // Every test returns true if it passed. GameUI shows the results on the test screen.
-// Tests that are still empty return false until they get their code.
 
 #include "Tests.h"
 #include "Maze.h"
@@ -250,5 +249,13 @@ bool testPathExists()
 
 bool testGeneratedCells()
 {
-    return false;
+    int size = MIN_MAZE_SIZE;
+    char** maze = createMaze(size);
+    generateMaze(maze, size);
+
+    bool startOpen = maze[0][0] == OPEN_CELL;
+    bool exitInCorner = maze[size - 1][size - 1] == EXIT_CELL;
+
+    destroyMaze(maze, size);
+    return startOpen && exitInCorner;
 }
