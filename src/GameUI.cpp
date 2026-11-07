@@ -133,7 +133,30 @@ void drawSizeScreen(int typedSize, bool showError)
 
 int readDirection()
 {
-    return COMMAND_QUIT;
+    // Every direction has an arrow key and a letter key.
+    if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
+    {
+        return DIRECTION_UP;
+    }
+    if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
+    {
+        return DIRECTION_DOWN;
+    }
+    if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A))
+    {
+        return DIRECTION_LEFT;
+    }
+    if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D))
+    {
+        return DIRECTION_RIGHT;
+    }
+    if (IsKeyPressed(KEY_Q))
+    {
+        return COMMAND_QUIT;
+    }
+
+    // No movement key was pressed in this frame.
+    return DIRECTION_NONE;
 }
 
 // Width and height of one cell in pixels, so that the whole maze fits in MAZE_AREA_SIZE.
