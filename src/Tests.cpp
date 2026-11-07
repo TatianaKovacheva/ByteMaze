@@ -159,7 +159,18 @@ bool testValidMove()
 
 bool testMoveOutsideMaze()
 {
-    return false;
+    char** maze = createTestMaze();
+    int row = 0;
+    int col = 0;
+
+    // Up and left from (0,0) are outside the maze. DIRECTION_NONE is not a move.
+    bool movedUp = movePlayer(maze, MIN_MAZE_SIZE, row, col, DIRECTION_UP);
+    bool movedLeft = movePlayer(maze, MIN_MAZE_SIZE, row, col, DIRECTION_LEFT);
+    bool movedNowhere = movePlayer(maze, MIN_MAZE_SIZE, row, col, DIRECTION_NONE);
+    bool stayed = row == 0 && col == 0;
+
+    destroyMaze(maze, MIN_MAZE_SIZE);
+    return !movedUp && !movedLeft && !movedNowhere && stayed;
 }
 
 bool testExitReached()
