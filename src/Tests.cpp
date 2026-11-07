@@ -115,9 +115,32 @@ bool testCreateAndDestroy()
     return allWalls;
 }
 
+// A small hand-made maze for the movement tests:
+// row 0 is open from (0,0) to (0,2), (0,3) is a wall, the exit is in the corner,
+// and every other cell is a wall.
+char** createTestMaze()
+{
+    char** maze = createMaze(MIN_MAZE_SIZE);
+    maze[0][0] = OPEN_CELL;
+    maze[0][1] = OPEN_CELL;
+    maze[0][2] = OPEN_CELL;
+    maze[MIN_MAZE_SIZE - 1][MIN_MAZE_SIZE - 1] = EXIT_CELL;
+    return maze;
+}
+
 bool testWallBlocksMove()
 {
-    return false;
+    char** maze = createTestMaze();
+    int row = 0;
+    int col = 2;
+
+    // (0,3) on the right and (1,2) below are walls.
+    bool movedRight = movePlayer(maze, MIN_MAZE_SIZE, row, col, DIRECTION_RIGHT);
+    bool movedDown = movePlayer(maze, MIN_MAZE_SIZE, row, col, DIRECTION_DOWN);
+    bool stayed = row == 0 && col == 2;
+
+    destroyMaze(maze, MIN_MAZE_SIZE);
+    return !movedRight && !movedDown && stayed;
 }
 
 bool testValidMove()
