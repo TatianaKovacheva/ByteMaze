@@ -159,9 +159,27 @@ void getTargetPosition(int row, int col, int direction, int& targetRow, int& tar
     }
 }
 
-bool movePlayer(char** /*maze*/, int /*size*/, int& /*playerRow*/, int& /*playerCol*/, int /*direction*/)
+bool movePlayer(char** maze, int size, int& playerRow, int& playerCol, int direction)
 {
-    return false;
+    // Only the four directions move the player. DIRECTION_NONE is not a move.
+    if (direction < DIRECTION_UP || direction > DIRECTION_RIGHT)
+    {
+        return false;
+    }
+
+    int targetRow;
+    int targetCol;
+    getTargetPosition(playerRow, playerCol, direction, targetRow, targetCol);
+
+    // A wall or the edge of the maze blocks the move.
+    if (!canMoveTo(maze, size, targetRow, targetCol))
+    {
+        return false;
+    }
+
+    playerRow = targetRow;
+    playerCol = targetCol;
+    return true;
 }
 
 bool isAtExit(int /*size*/, int /*row*/, int /*col*/)
