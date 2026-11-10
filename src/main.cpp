@@ -17,6 +17,7 @@ const int SCREEN_TESTS = 5;
 
 int main()
 {
+    // A different random maze every time the program runs.
     srand((unsigned int)time(nullptr));
 
     // Show only warnings and errors from raylib in the console.
@@ -25,13 +26,40 @@ int main()
     SetTargetFPS(60);
 
     int currentScreen = SCREEN_MENU;
+    bool exitRequested = false;
 
     // One pass of this loop is one frame: 60 frames per second.
-    while (!WindowShouldClose())
+    while (!exitRequested && !WindowShouldClose())
     {
+        // 1. Read the keys and change the data of the active screen.
+        switch (currentScreen)
+        {
+        case SCREEN_MENU:
+        {
+            int choice = readMenuChoice();
+            if (choice == MENU_HELP)
+            {
+                currentScreen = SCREEN_HELP;
+            }
+            else if (choice == MENU_EXIT)
+            {
+                exitRequested = true;
+            }
+            break;
+        }
+        case SCREEN_HELP:
+            if (readBackKey())
+            {
+                currentScreen = SCREEN_MENU;
+            }
+            break;
+        default:
+            break;
+        }
+
+        // 2. Draw the screen that is active in this frame.
         BeginDrawing();
 
-        // Draw the screen that is active in this frame.
         switch (currentScreen)
         {
         case SCREEN_MENU:
