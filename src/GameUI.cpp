@@ -1,11 +1,10 @@
-// GameUI.cpp - raylib drawing and keyboard input.
+// GameUI.cpp - raylib drawing and keyboard input. Owner: Plamen Rusev.
 // Every function either draws one part of a screen or checks the keyboard.
 // No function waits for a key: raylib calls them again in every frame.
-// Functions that are still empty get their code in later commits.
-// Until then their parameter names stay in /* */ comments.
 
 #include "GameUI.h"
 #include "Maze.h"
+#include "Tests.h"
 #include "raylib.h"
 
 // Text sizes in pixels.
@@ -133,7 +132,30 @@ void drawSizeScreen(int typedSize, bool showError)
 
 int readDirection()
 {
-    return COMMAND_QUIT;
+    // Every direction has an arrow key and a letter key.
+    if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
+    {
+        return DIRECTION_UP;
+    }
+    if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
+    {
+        return DIRECTION_DOWN;
+    }
+    if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A))
+    {
+        return DIRECTION_LEFT;
+    }
+    if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D))
+    {
+        return DIRECTION_RIGHT;
+    }
+    if (IsKeyPressed(KEY_Q))
+    {
+        return COMMAND_QUIT;
+    }
+
+    // No movement key was pressed in this frame.
+    return DIRECTION_NONE;
 }
 
 // Width and height of one cell in pixels, so that the whole maze fits in MAZE_AREA_SIZE.
@@ -235,6 +257,28 @@ void drawWinScreen(int moveCount)
     DrawText("Q - back to the menu", 160, 380, SMALL_TEXT_SIZE, GRAY);
 }
 
-void drawTestScreen(const bool /*results*/[])
+void drawTestScreen(const bool results[])
 {
+    ClearBackground(RAYWHITE);
+    DrawText("Self-tests", 100, 60, TEXT_SIZE + 10, DARKBLUE);
+
+    // One line for every test: PASS or FAIL and the name of the test.
+    int passedCount = 0;
+    for (int i = 0; i < TEST_COUNT; i++)
+    {
+        int y = 140 + i * 40;
+        if (results[i])
+        {
+            DrawText("PASS", 100, y, SMALL_TEXT_SIZE, DARKGREEN);
+            passedCount++;
+        }
+        else
+        {
+            DrawText("FAIL", 100, y, SMALL_TEXT_SIZE, RED);
+        }
+        DrawText(getTestName(i), 180, y, SMALL_TEXT_SIZE, DARKGRAY);
+    }
+
+    DrawText(TextFormat("%d of %d tests passed.", passedCount, TEST_COUNT), 100, 480, TEXT_SIZE, DARKBLUE);
+    DrawText("Q - back to the menu", 100, 620, SMALL_TEXT_SIZE, GRAY);
 }
