@@ -1,4 +1,4 @@
-// main.cpp - entry point of the ByteMaze game. Owner: Tatiana Kovacheva.
+// main.cpp - entry point of the ByteMaze game.
 // Opens the raylib window and runs the frame loop until the window is closed.
 
 #include "GameUI.h"
@@ -36,6 +36,13 @@ int main()
     // Data of the game. maze stays nullptr until a game starts.
     char** maze = nullptr;
     int mazeSize = 0;
+    int playerRow = 0;
+    int playerCol = 0;
+    int moveCount = 0;
+
+    // The cell the player tried to enter last. drawCellInfo describes it.
+    int lastTargetRow = 0;
+    int lastTargetCol = 0;
 
     // One pass of this loop is one frame: 60 frames per second.
     while (!exitRequested && !WindowShouldClose())
@@ -82,6 +89,13 @@ int main()
                     mazeSize = typedSize;
                     maze = createMaze(mazeSize);
                     generateMaze(maze, mazeSize);
+
+                    // Every game starts in the top-left corner with 0 moves.
+                    playerRow = 0;
+                    playerCol = 0;
+                    moveCount = 0;
+                    lastTargetRow = 0;
+                    lastTargetCol = 0;
                     currentScreen = SCREEN_GAME;
                 }
                 else
@@ -90,6 +104,25 @@ int main()
                 }
             }
             break;
+        case SCREEN_GAME:
+        {
+            int direction = readDirection();
+            if (direction == COMMAND_QUIT)
+            {
+                currentScreen = SCREEN_MENU;
+            }
+            else if (direction != DIRECTION_NONE)
+            {
+                // Remember which cell the player tried to enter, for drawCellInfo.
+                getTargetPosition(playerRow, playerCol, direction, lastTargetRow, lastTargetCol);
+
+                if (movePlayer(maze, mazeSize, playerRow, playerCol, direction))
+                {
+                    moveCount++;
+                }
+            }
+            break;
+        }
         default:
             break;
         }
@@ -110,7 +143,10 @@ int main()
             break;
         case SCREEN_GAME:
             drawMaze(maze, mazeSize);
+            drawPlayer(mazeSize, playerRow, playerCol);
             drawLegend();
+            drawPlayerInfo(playerRow, playerCol, moveCount);
+            drawCellInfo(maze, mazeSize, lastTargetRow, lastTargetCol);
             break;
         case SCREEN_WIN:
             drawWinScreen(0);
