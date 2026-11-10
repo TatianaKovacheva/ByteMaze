@@ -109,6 +109,9 @@ int main()
             int direction = readDirection();
             if (direction == COMMAND_QUIT)
             {
+                // The game is left, so its memory is released.
+                destroyMaze(maze, mazeSize);
+                maze = nullptr;
                 currentScreen = SCREEN_MENU;
             }
             else if (direction != DIRECTION_NONE)
@@ -120,9 +123,22 @@ int main()
                 {
                     moveCount++;
                 }
+
+                if (isAtExit(mazeSize, playerRow, playerCol))
+                {
+                    destroyMaze(maze, mazeSize);
+                    maze = nullptr;
+                    currentScreen = SCREEN_WIN;
+                }
             }
             break;
         }
+        case SCREEN_WIN:
+            if (readBackKey())
+            {
+                currentScreen = SCREEN_MENU;
+            }
+            break;
         default:
             break;
         }
@@ -149,7 +165,7 @@ int main()
             drawCellInfo(maze, mazeSize, lastTargetRow, lastTargetCol);
             break;
         case SCREEN_WIN:
-            drawWinScreen(0);
+            drawWinScreen(moveCount);
             break;
         case SCREEN_TESTS:
         default:
