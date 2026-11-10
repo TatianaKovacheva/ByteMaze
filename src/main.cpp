@@ -1,7 +1,8 @@
-// main.cpp - entry point of the ByteMaze game.
+// main.cpp - entry point of the ByteMaze game. Owner: Tatiana Kovacheva.
 // Opens the raylib window and runs the frame loop until the window is closed.
 
 #include "GameUI.h"
+#include "Maze.h"
 #include "raylib.h"
 
 #include <cstdlib>
@@ -28,6 +29,14 @@ int main()
     int currentScreen = SCREEN_MENU;
     bool exitRequested = false;
 
+    // Data of the size screen.
+    int typedSize = 0;
+    bool showSizeError = false;
+
+    // Data of the game. maze stays nullptr until a game starts.
+    char** maze = nullptr;
+    int mazeSize = 0;
+
     // One pass of this loop is one frame: 60 frames per second.
     while (!exitRequested && !WindowShouldClose())
     {
@@ -37,7 +46,13 @@ int main()
         case SCREEN_MENU:
         {
             int choice = readMenuChoice();
-            if (choice == MENU_HELP)
+            if (choice == MENU_NEW_GAME)
+            {
+                typedSize = 0;
+                showSizeError = false;
+                currentScreen = SCREEN_SIZE;
+            }
+            else if (choice == MENU_HELP)
             {
                 currentScreen = SCREEN_HELP;
             }
@@ -51,6 +66,28 @@ int main()
             if (readBackKey())
             {
                 currentScreen = SCREEN_MENU;
+            }
+            break;
+        case SCREEN_SIZE:
+            if (readBackKey())
+            {
+                currentScreen = SCREEN_MENU;
+            }
+            else if (readSizeInput(typedSize))
+            {
+                // Enter was pressed: start a game only with a valid size.
+                if (isValidSize(typedSize))
+                {
+                    destroyMaze(maze, mazeSize);
+                    mazeSize = typedSize;
+                    maze = createMaze(mazeSize);
+                    generateMaze(maze, mazeSize);
+                    currentScreen = SCREEN_GAME;
+                }
+                else
+                {
+                    showSizeError = true;
+                }
             }
             break;
         default:
@@ -69,21 +106,27 @@ int main()
             drawHelpScreen();
             break;
         case SCREEN_SIZE:
-            drawSizeScreen(0, false);
+            drawSizeScreen(typedSize, showSizeError);
+            break;
+        case SCREEN_GAME:
+            drawMaze(maze, mazeSize);
+            drawLegend();
             break;
         case SCREEN_WIN:
             drawWinScreen(0);
             break;
-        case SCREEN_GAME:
         case SCREEN_TESTS:
         default:
-            // The game and the test results need data from later commits.
+            // The test results need data from a later commit.
             drawMenuScreen();
             break;
         }
 
         EndDrawing();
     }
+
+    // Release the maze if a game was started.
+    destroyMaze(maze, mazeSize);
 
     CloseWindow();
     return 0;
