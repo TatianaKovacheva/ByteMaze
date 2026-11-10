@@ -1,8 +1,9 @@
 // main.cpp - entry point of the ByteMaze game.
-// Opens the raylib window and runs the frame loop until the window is closed.
+// Opens the raylib window, switches between the screens and runs the game.
 
 #include "GameUI.h"
 #include "Maze.h"
+#include "Tests.h"
 #include "raylib.h"
 
 #include <cstdlib>
@@ -44,6 +45,9 @@ int main()
     int lastTargetRow = 0;
     int lastTargetCol = 0;
 
+    // Results of the self-tests. {} sets every element to false.
+    bool testResults[TEST_COUNT] = {};
+
     // One pass of this loop is one frame: 60 frames per second.
     while (!exitRequested && !WindowShouldClose())
     {
@@ -58,6 +62,15 @@ int main()
                 typedSize = 0;
                 showSizeError = false;
                 currentScreen = SCREEN_SIZE;
+            }
+            else if (choice == MENU_SELF_TEST)
+            {
+                // Run every test once, then show the results.
+                for (int i = 0; i < TEST_COUNT; i++)
+                {
+                    testResults[i] = runTest(i);
+                }
+                currentScreen = SCREEN_TESTS;
             }
             else if (choice == MENU_HELP)
             {
@@ -134,6 +147,7 @@ int main()
             break;
         }
         case SCREEN_WIN:
+        case SCREEN_TESTS:
             if (readBackKey())
             {
                 currentScreen = SCREEN_MENU;
@@ -168,9 +182,9 @@ int main()
             drawWinScreen(moveCount);
             break;
         case SCREEN_TESTS:
+            drawTestScreen(testResults);
+            break;
         default:
-            // The test results need data from a later commit.
-            drawMenuScreen();
             break;
         }
 
