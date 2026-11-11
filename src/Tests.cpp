@@ -33,6 +33,10 @@ const char* getTestName(int index)
         return "A door needs a key";
     case 9:
         return "A key goes into the inventory";
+    case 10:
+        return "Fog hides the far cells";
+    case 11:
+        return "Score formula and multiplier";
     default:
         return "Unknown test";
     }
@@ -62,6 +66,10 @@ bool runTest(int index)
         return testDoorNeedsKey();
     case 9:
         return testKeyIsPickedUp();
+    case 10:
+        return testFogVisibility();
+    case 11:
+        return testScoreCalculation();
     default:
         return false;
     }
@@ -302,4 +310,28 @@ bool testKeyIsPickedUp()
 
     destroyMaze(maze, MIN_MAZE_SIZE);
     return moved && keyCount == 1 && keyRemoved;
+}
+
+bool testFogVisibility()
+{
+    // The player is at (5,5) and sees 3 cells in every direction.
+    bool nearVisible = isVisible(5, 5, 5, 8, 3) && isVisible(5, 5, 2, 2, 3);
+    bool farHidden = !isVisible(5, 5, 5, 9, 3) && !isVisible(5, 5, 1, 5, 3);
+
+    // Without fog even the farthest cell is visible.
+    bool noFogVisible = isVisible(0, 0, MAX_MAZE_SIZE - 1, MAX_MAZE_SIZE - 1, NO_FOG);
+
+    return nearVisible && farHidden && noFogVisible;
+}
+
+bool testScoreCalculation()
+{
+    // 1000 - 2 * 10 - 3 * 20 = 920
+    bool easyScore = calculateScore(10, 20, DIFFICULTY_EASY) == 920;
+    bool hardScore = calculateScore(10, 20, DIFFICULTY_HARD) == 920 * 3;
+
+    // A very slow game still gets the minimum of 100 points, times 2 on Medium.
+    bool minimumScore = calculateScore(1000, 1000, DIFFICULTY_MEDIUM) == 200;
+
+    return easyScore && hardScore && minimumScore;
 }

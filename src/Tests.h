@@ -5,7 +5,7 @@
 #pragma once
 
 // Number of tests in the list. GameUI draws one line for each of them.
-const int TEST_COUNT = 10;
+const int TEST_COUNT = 12;
 
 // Returns the name of the test with this number, from 0 to TEST_COUNT - 1.
 const char* getTestName(int index);
@@ -42,3 +42,9 @@ bool testDoorNeedsKey();
 
 // Checks that a key goes into the inventory when the player steps on it.
 bool testKeyIsPickedUp();
+
+// Checks which cells are visible with fog and without fog.
+bool testFogVisibility();
+
+// Checks the score formula, the minimum score and the difficulty multiplier.
+bool testScoreCalculation();
