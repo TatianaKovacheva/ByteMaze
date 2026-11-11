@@ -56,9 +56,6 @@ int getScoreMultiplier(int difficulty)
     }
 }
 
-// Chance in percent that a wall outside the path becomes an open cell.
-const int OPEN_CELL_CHANCE = 60;
-
 char** createMaze(int size)
 {
     // An array of row pointers: maze[row] will point to one row.
@@ -142,13 +139,14 @@ void carvePath(char** maze, int size)
 }
 
 // Turns some of the walls outside the path into open cells at random.
-void openRandomCells(char** maze, int size)
+// openChance is the chance in percent for every wall.
+void openRandomCells(char** maze, int size, int openChance)
 {
     for (int row = 0; row < size; row++)
     {
         for (int col = 0; col < size; col++)
         {
-            if (maze[row][col] == WALL_CELL && rand() % 100 < OPEN_CELL_CHANCE)
+            if (maze[row][col] == WALL_CELL && rand() % 100 < openChance)
             {
                 maze[row][col] = OPEN_CELL;
             }
@@ -156,7 +154,7 @@ void openRandomCells(char** maze, int size)
     }
 }
 
-void generateMaze(char** maze, int size)
+void generateMaze(char** maze, int size, int difficulty)
 {
     // Start again from a maze full of walls.
     for (int row = 0; row < size; row++)
@@ -168,7 +166,7 @@ void generateMaze(char** maze, int size)
     }
 
     carvePath(maze, size);
-    openRandomCells(maze, size);
+    openRandomCells(maze, size, getOpenCellChance(difficulty));
 
     // The exit is always in the bottom-right corner.
     maze[size - 1][size - 1] = EXIT_CELL;
