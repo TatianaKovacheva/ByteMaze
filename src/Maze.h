@@ -50,7 +50,8 @@ void destroyMaze(char** maze, int size);
 bool isValidSize(int size);
 
 // Builds a new random maze with an open path from (0,0) to the exit.
-void generateMaze(char** maze, int size);
+// When no difficulty is given, Medium is used.
+void generateMaze(char** maze, int size, int difficulty = DIFFICULTY_MEDIUM);
 
 // Returns true if (row, col) is inside the maze.
 bool isInside(int size, int row, int col);
@@ -64,6 +65,10 @@ void getTargetPosition(int row, int col, int direction, int& targetRow, int& tar
 // Moves the player one cell in the given direction if possible.
 // Returns true if the player moved, false if a wall or the edge blocked the move.
 bool movePlayer(char** maze, int size, int& playerRow, int& playerCol, int direction);
+
+// Like movePlayer, but a key on the new cell goes into keyCount
+// and a closed door opens if keyCount is more than 0.
+bool movePlayerWithKeys(char** maze, int size, int& playerRow, int& playerCol, int direction, int& keyCount);
 
 // Returns true if (row, col) is the exit in the bottom-right corner.
 bool isAtExit(int size, int row, int col);

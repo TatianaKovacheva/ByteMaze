@@ -285,6 +285,35 @@ bool movePlayer(char** maze, int size, int& playerRow, int& playerCol, int direc
     return true;
 }
 
+bool movePlayerWithKeys(char** maze, int size, int& playerRow, int& playerCol, int direction, int& keyCount)
+{
+    int targetRow;
+    int targetCol;
+    getTargetPosition(playerRow, playerCol, direction, targetRow, targetCol);
+
+    // A closed door opens with one key from the inventory.
+    bool isMove = direction >= DIRECTION_UP && direction <= DIRECTION_RIGHT;
+    if (isMove && isInside(size, targetRow, targetCol) && maze[targetRow][targetCol] == DOOR_CELL && keyCount > 0)
+    {
+        keyCount--;
+        maze[targetRow][targetCol] = OPEN_CELL;
+    }
+
+    if (!movePlayer(maze, size, playerRow, playerCol, direction))
+    {
+        return false;
+    }
+
+    // A key on the new cell goes into the inventory.
+    if (maze[playerRow][playerCol] == KEY_CELL)
+    {
+        keyCount++;
+        maze[playerRow][playerCol] = OPEN_CELL;
+    }
+
+    return true;
+}
+
 bool isAtExit(int size, int row, int col)
 {
     return row == size - 1 && col == size - 1;
