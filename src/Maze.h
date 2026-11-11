@@ -73,5 +73,8 @@ bool movePlayerWithKeys(char** maze, int size, int& playerRow, int& playerCol, i
 // Returns true if (row, col) is near enough to the player to be seen.
 bool isVisible(int playerRow, int playerCol, int row, int col, int fogRadius);
 
+// Score of a finished game: fewer moves and seconds give more points.
+int calculateScore(int moveCount, int seconds, int difficulty);
+
 // Returns true if (row, col) is the exit in the bottom-right corner.
 bool isAtExit(int size, int row, int col);
