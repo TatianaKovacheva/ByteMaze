@@ -5,7 +5,7 @@
 #pragma once
 
 // Number of tests in the list. GameUI draws one line for each of them.
-const int TEST_COUNT = 8;
+const int TEST_COUNT = 10;
 
 // Returns the name of the test with this number, from 0 to TEST_COUNT - 1.
 const char* getTestName(int index);
@@ -36,3 +36,9 @@ bool testPathExists();
 
 // Checks that the start is open and the exit is in the bottom-right corner.
 bool testGeneratedCells();
+
+// Checks that a door blocks the player without a key and opens with a key.
+bool testDoorNeedsKey();
+
+// Checks that a key goes into the inventory when the player steps on it.
+bool testKeyIsPickedUp();

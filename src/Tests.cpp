@@ -29,6 +29,10 @@ const char* getTestName(int index)
         return "Every generated maze can be solved";
     case 7:
         return "Start and exit of a generated maze";
+    case 8:
+        return "A door needs a key";
+    case 9:
+        return "A key goes into the inventory";
     default:
         return "Unknown test";
     }
@@ -54,6 +58,10 @@ bool runTest(int index)
         return testPathExists();
     case 7:
         return testGeneratedCells();
+    case 8:
+        return testDoorNeedsKey();
+    case 9:
+        return testKeyIsPickedUp();
     default:
         return false;
     }
@@ -258,4 +266,40 @@ bool testGeneratedCells()
 
     destroyMaze(maze, size);
     return startOpen && exitInCorner;
+}
+
+bool testDoorNeedsKey()
+{
+    char** maze = createTestMaze();
+    maze[0][3] = DOOR_CELL;
+    maze[0][4] = OPEN_CELL;
+    int row = 0;
+    int col = 2;
+    int keyCount = 0;
+
+    // Without a key the door at (0,3) works like a wall.
+    bool movedWithoutKey = movePlayerWithKeys(maze, MIN_MAZE_SIZE, row, col, DIRECTION_RIGHT, keyCount);
+
+    // With one key the door opens and the key is used.
+    keyCount = 1;
+    bool movedWithKey = movePlayerWithKeys(maze, MIN_MAZE_SIZE, row, col, DIRECTION_RIGHT, keyCount);
+    bool doorOpened = maze[0][3] == OPEN_CELL;
+
+    destroyMaze(maze, MIN_MAZE_SIZE);
+    return !movedWithoutKey && movedWithKey && doorOpened && keyCount == 0 && col == 3;
+}
+
+bool testKeyIsPickedUp()
+{
+    char** maze = createTestMaze();
+    maze[0][1] = KEY_CELL;
+    int row = 0;
+    int col = 0;
+    int keyCount = 0;
+
+    bool moved = movePlayerWithKeys(maze, MIN_MAZE_SIZE, row, col, DIRECTION_RIGHT, keyCount);
+    bool keyRemoved = maze[0][1] == OPEN_CELL;
+
+    destroyMaze(maze, MIN_MAZE_SIZE);
+    return moved && keyCount == 1 && keyRemoved;
 }
