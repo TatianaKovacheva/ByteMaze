@@ -4,6 +4,58 @@
 
 #include <cstdlib>
 
+int getOpenCellChance(int difficulty)
+{
+    switch (difficulty)
+    {
+    case DIFFICULTY_EASY:
+        return 70;
+    case DIFFICULTY_HARD:
+        return 45;
+    default:
+        return 60;
+    }
+}
+
+int getDoorCount(int difficulty)
+{
+    switch (difficulty)
+    {
+    case DIFFICULTY_EASY:
+        return 3;
+    case DIFFICULTY_HARD:
+        return 1;
+    default:
+        return 2;
+    }
+}
+
+int getFogRadius(int difficulty)
+{
+    switch (difficulty)
+    {
+    case DIFFICULTY_EASY:
+        return NO_FOG;
+    case DIFFICULTY_HARD:
+        return 3;
+    default:
+        return 5;
+    }
+}
+
+int getScoreMultiplier(int difficulty)
+{
+    switch (difficulty)
+    {
+    case DIFFICULTY_EASY:
+        return 1;
+    case DIFFICULTY_HARD:
+        return 3;
+    default:
+        return 2;
+    }
+}
+
 // Chance in percent that a wall outside the path becomes an open cell.
 const int OPEN_CELL_CHANCE = 60;
 
