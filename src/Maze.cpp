@@ -318,3 +318,16 @@ bool isAtExit(int size, int row, int col)
 {
     return row == size - 1 && col == size - 1;
 }
+
+bool isVisible(int playerRow, int playerCol, int row, int col, int fogRadius)
+{
+    if (fogRadius == NO_FOG)
+    {
+        return true;
+    }
+
+    // abs gives the distance without the sign: abs(-3) is 3.
+    int rowDistance = abs(row - playerRow);
+    int colDistance = abs(col - playerCol);
+    return rowDistance <= fogRadius && colDistance <= fogRadius;
+}

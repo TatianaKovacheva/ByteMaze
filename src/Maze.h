@@ -70,5 +70,8 @@ bool movePlayer(char** maze, int size, int& playerRow, int& playerCol, int direc
 // and a closed door opens if keyCount is more than 0.
 bool movePlayerWithKeys(char** maze, int size, int& playerRow, int& playerCol, int direction, int& keyCount);
 
+// Returns true if (row, col) is near enough to the player to be seen.
+bool isVisible(int playerRow, int playerCol, int row, int col, int fogRadius);
+
 // Returns true if (row, col) is the exit in the bottom-right corner.
 bool isAtExit(int size, int row, int col);
