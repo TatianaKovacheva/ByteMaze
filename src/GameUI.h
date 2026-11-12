@@ -58,7 +58,8 @@ int readDifficultyChoice();
 int readDirection();
 
 // Draws the text maze from the top row to the bottom row.
-void drawMaze(char** maze, int size);
+// Cells that are hidden by the fog are not drawn.
+void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius);
 
 // Draws the symbol @ at the position of the player.
 void drawPlayer(int size, int playerRow, int playerCol);

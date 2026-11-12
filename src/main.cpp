@@ -173,7 +173,7 @@ int main()
             drawSizeScreen(typedSize, showSizeError);
             break;
         case SCREEN_GAME:
-            drawMaze(maze, mazeSize);
+            drawMaze(maze, mazeSize, playerRow, playerCol, NO_FOG);
             drawPlayer(mazeSize, playerRow, playerCol);
             drawLegend();
             drawPlayerInfo(playerRow, playerCol, moveCount);

@@ -296,7 +296,7 @@ Color getCellColor(char cell)
     return WALL_COLOR;
 }
 
-void drawMaze(char** maze, int size)
+void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius)
 {
     ClearBackground(BACKGROUND_COLOR);
     int cellSize = getCellSize(size);
@@ -306,8 +306,12 @@ void drawMaze(char** maze, int size)
     {
         for (int col = 0; col < size; col++)
         {
-            char symbol[2] = { getCellSymbol(maze[row][col]), '\0' };
-            drawGameText(symbol, MAZE_LEFT + col * cellSize, MAZE_TOP + row * cellSize, cellSize, getCellColor(maze[row][col]));
+            // A cell in the fog stays dark.
+            if (isVisible(playerRow, playerCol, row, col, fogRadius))
+            {
+                char symbol[2] = { getCellSymbol(maze[row][col]), '\0' };
+                drawGameText(symbol, MAZE_LEFT + col * cellSize, MAZE_TOP + row * cellSize, cellSize, getCellColor(maze[row][col]));
+            }
         }
     }
 }
