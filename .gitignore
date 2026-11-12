@@ -82,3 +82,6 @@ Release/
 
 # raylib library (needed to build after a fresh clone)
 !external/raylib/lib/raylib.lib
+
+# Microsoft Word lock files (created while a document is open)
+~$*
