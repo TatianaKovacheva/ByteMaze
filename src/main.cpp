@@ -16,6 +16,7 @@ const int SCREEN_SIZE = 2;
 const int SCREEN_GAME = 3;
 const int SCREEN_WIN = 4;
 const int SCREEN_TESTS = 5;
+const int SCREEN_DIFFICULTY = 6;
 
 int main()
 {
@@ -41,6 +42,17 @@ int main()
     int playerRow = 0;
     int playerCol = 0;
     int moveCount = 0;
+    int difficulty = DIFFICULTY_MEDIUM;
+    int keyCount = 0;
+
+    // Time and score. GetTime returns the seconds since InitWindow.
+    double startTime = 0.0;
+    int seconds = 0;
+    int score = 0;
+
+    // The best score for every size and difficulty while the program runs.
+    // {} sets every element to 0.
+    int bestScores[MAX_MAZE_SIZE + 1][DIFFICULTY_HARD + 1] = {};
 
     // The cell the player tried to enter last. drawCellInfo describes it.
     int lastTargetRow = 0;
@@ -96,21 +108,10 @@ int main()
             }
             else if (readSizeInput(typedSize))
             {
-                // Enter was pressed: start a game only with a valid size.
+                // Enter was pressed: a valid size opens the difficulty screen.
                 if (isValidSize(typedSize))
                 {
-                    destroyMaze(maze, mazeSize);
-                    mazeSize = typedSize;
-                    maze = createMaze(mazeSize);
-                    generateMaze(maze, mazeSize);
-
-                    // Every game starts in the top-left corner with 0 moves.
-                    playerRow = 0;
-                    playerCol = 0;
-                    moveCount = 0;
-                    lastTargetRow = 0;
-                    lastTargetCol = 0;
-                    currentScreen = SCREEN_GAME;
+                    currentScreen = SCREEN_DIFFICULTY;
                 }
                 else
                 {
@@ -118,9 +119,38 @@ int main()
                 }
             }
             break;
+        case SCREEN_DIFFICULTY:
+        {
+            int choice = readDifficultyChoice();
+            if (readBackKey())
+            {
+                currentScreen = SCREEN_MENU;
+            }
+            else if (choice != DIFFICULTY_NONE)
+            {
+                // Create a new maze with the chosen size and difficulty.
+                difficulty = choice;
+                destroyMaze(maze, mazeSize);
+                mazeSize = typedSize;
+                maze = createMaze(mazeSize);
+                generateMaze(maze, mazeSize, difficulty);
+
+                // Every game starts in the top-left corner with 0 moves and no keys.
+                playerRow = 0;
+                playerCol = 0;
+                moveCount = 0;
+                keyCount = 0;
+                lastTargetRow = 0;
+                lastTargetCol = 0;
+                startTime = GetTime();
+                currentScreen = SCREEN_GAME;
+            }
+            break;
+        }
         case SCREEN_GAME:
         {
             int direction = readDirection();
+            seconds = (int)(GetTime() - startTime);
             if (direction == COMMAND_QUIT)
             {
                 // The game is left, so its memory is released.
@@ -133,13 +163,19 @@ int main()
                 // Remember which cell the player tried to enter, for drawCellInfo.
                 getTargetPosition(playerRow, playerCol, direction, lastTargetRow, lastTargetCol);
 
-                if (movePlayer(maze, mazeSize, playerRow, playerCol, direction))
+                if (movePlayerWithKeys(maze, mazeSize, playerRow, playerCol, direction, keyCount))
                 {
                     moveCount++;
                 }
 
                 if (isAtExit(mazeSize, playerRow, playerCol))
                 {
+                    score = calculateScore(moveCount, seconds, difficulty);
+                    if (score > bestScores[mazeSize][difficulty])
+                    {
+                        bestScores[mazeSize][difficulty] = score;
+                    }
+
                     destroyMaze(maze, mazeSize);
                     maze = nullptr;
                     currentScreen = SCREEN_WIN;
@@ -172,15 +208,20 @@ int main()
         case SCREEN_SIZE:
             drawSizeScreen(typedSize, showSizeError);
             break;
+        case SCREEN_DIFFICULTY:
+            drawDifficultyScreen();
+            break;
         case SCREEN_GAME:
-            drawMaze(maze, mazeSize);
+            drawMaze(maze, mazeSize, playerRow, playerCol, getFogRadius(difficulty));
             drawPlayer(mazeSize, playerRow, playerCol);
             drawLegend();
             drawPlayerInfo(playerRow, playerCol, moveCount);
             drawCellInfo(maze, mazeSize, lastTargetRow, lastTargetCol);
+            drawInventory(keyCount);
+            drawTimer(seconds);
             break;
         case SCREEN_WIN:
-            drawWinScreen(moveCount);
+            drawWinScreen(moveCount, seconds, score, bestScores[mazeSize][difficulty]);
             break;
         case SCREEN_TESTS:
             drawTestScreen(testResults);
