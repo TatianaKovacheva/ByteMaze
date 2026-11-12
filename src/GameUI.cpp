@@ -389,13 +389,28 @@ void drawCellInfo(char** maze, int size, int row, int col)
     drawGameText(description, PANEL_LEFT, 487, SMALL_TEXT_SIZE, TEXT_COLOR);
 }
 
-void drawWinScreen(int moveCount)
+void drawTimer(int seconds)
+{
+    // 75 seconds are shown as 1:15. %02d always prints two digits.
+    drawGameText(TextFormat("Time: %d:%02d", seconds / 60, seconds % 60), PANEL_LEFT, 600, SMALL_TEXT_SIZE, TEXT_COLOR);
+}
+
+void drawWinScreen(int moveCount, int seconds, int score, int bestScore)
 {
     ClearBackground(BACKGROUND_COLOR);
 
-    drawGameText("You found the exit!", 160, 200, TEXT_SIZE + 10, GOOD_COLOR);
-    drawGameText(TextFormat("Moves: %d", moveCount), 160, 280, TEXT_SIZE, TEXT_COLOR);
-    drawGameText("Q - back to the menu", 160, 380, SMALL_TEXT_SIZE, HINT_COLOR);
+    drawGameText("You found the exit!", 160, 160, TEXT_SIZE + 10, GOOD_COLOR);
+    drawGameText(TextFormat("Moves: %d", moveCount), 160, 240, TEXT_SIZE, TEXT_COLOR);
+    drawGameText(TextFormat("Time: %d:%02d", seconds / 60, seconds % 60), 160, 280, TEXT_SIZE, TEXT_COLOR);
+    drawGameText(TextFormat("Score: %d", score), 160, 340, TEXT_SIZE + 10, PLAYER_COLOR);
+    drawGameText(TextFormat("Best for this size and difficulty: %d", bestScore), 160, 395, SMALL_TEXT_SIZE, TEXT_COLOR);
+
+    if (score >= bestScore)
+    {
+        drawGameText("New best result!", 160, 425, SMALL_TEXT_SIZE, GOOD_COLOR);
+    }
+
+    drawGameText("Q - back to the menu", 160, 600, SMALL_TEXT_SIZE, HINT_COLOR);
 }
 
 void drawTestScreen(const bool results[])

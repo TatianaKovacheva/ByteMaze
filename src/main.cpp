@@ -181,7 +181,7 @@ int main()
             drawInventory(0);
             break;
         case SCREEN_WIN:
-            drawWinScreen(moveCount);
+            drawWinScreen(moveCount, 0, 0, 0);
             break;
         case SCREEN_TESTS:
             drawTestScreen(testResults);

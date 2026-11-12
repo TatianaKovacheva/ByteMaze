@@ -76,8 +76,11 @@ void drawInventory(int keyCount);
 // Describes the cell at (row, col): wall, open cell, exit or outside the maze.
 void drawCellInfo(char** maze, int size, int row, int col);
 
-// Congratulates the player for reaching the exit.
-void drawWinScreen(int moveCount);
+// Draws the time of the game as minutes and seconds.
+void drawTimer(int seconds);
+
+// Congratulates the player and shows the moves, the time, the score and the best score.
+void drawWinScreen(int moveCount, int seconds, int score, int bestScore);
 
 // Draws PASS or FAIL for every test. results has TEST_COUNT elements.
 void drawTestScreen(const bool results[]);
