@@ -1,4 +1,4 @@
-// GameUI.cpp - raylib drawing and keyboard input. Owner: Plamen Rusev.
+// GameUI.cpp - raylib drawing and keyboard input. 
 // Every function either draws one part of a screen or checks the keyboard.
 // No function waits for a key: raylib calls them again in every frame.
 
@@ -102,10 +102,12 @@ void drawHelpScreen()
     drawGameText(".  path", 100, 340, SMALL_TEXT_SIZE, TEXT_COLOR);
     drawGameText(">  exit", 100, 370, SMALL_TEXT_SIZE, TEXT_COLOR);
     drawGameText("@  player", 100, 400, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText("D  door: you need a key to open it, it can be a shorter way", 100, 430, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText("K  key: step on it to put it into the inventory", 100, 460, SMALL_TEXT_SIZE, TEXT_COLOR);
 
-    drawGameText("Controls", 100, 460, TEXT_SIZE, TITLE_COLOR);
-    drawGameText("Arrow keys or W, A, S, D - move", 100, 510, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("Q - back to the menu", 100, 540, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText("Controls", 100, 510, TEXT_SIZE, TITLE_COLOR);
+    drawGameText("Arrow keys or W, A, S, D - move", 100, 555, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText("Q - back to the menu", 100, 585, SMALL_TEXT_SIZE, TEXT_COLOR);
 }
 
 bool readBackKey()
@@ -263,19 +265,27 @@ void drawLegend()
     drawGameText(".  path", PANEL_LEFT, 85, SMALL_TEXT_SIZE, PATH_COLOR);
     drawGameText(">  exit", PANEL_LEFT, 110, SMALL_TEXT_SIZE, GOOD_COLOR);
     drawGameText("@  you", PANEL_LEFT, 135, SMALL_TEXT_SIZE, PLAYER_COLOR);
+    drawGameText("D  door", PANEL_LEFT, 160, SMALL_TEXT_SIZE, DOOR_COLOR);
+    drawGameText("K  key", PANEL_LEFT, 185, SMALL_TEXT_SIZE, KEY_COLOR);
 
-    drawGameText("Keys", PANEL_LEFT, 185, TEXT_SIZE, TITLE_COLOR);
-    drawGameText("Arrows or", PANEL_LEFT, 225, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("W, A, S, D", PANEL_LEFT, 250, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("Q - menu", PANEL_LEFT, 275, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText("Keys", PANEL_LEFT, 225, TEXT_SIZE, TITLE_COLOR);
+    drawGameText("Arrows or", PANEL_LEFT, 260, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText("W, A, S, D", PANEL_LEFT, 282, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText("Q - menu", PANEL_LEFT, 304, SMALL_TEXT_SIZE, TEXT_COLOR);
 }
 
 void drawPlayerInfo(int playerRow, int playerCol, int moveCount)
 {
-    drawGameText("Position", PANEL_LEFT, 330, TEXT_SIZE, TITLE_COLOR);
-    drawGameText(TextFormat("Row: %d", playerRow), PANEL_LEFT, 370, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText(TextFormat("Column: %d", playerCol), PANEL_LEFT, 395, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText(TextFormat("Moves: %d", moveCount), PANEL_LEFT, 420, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText("Position", PANEL_LEFT, 345, TEXT_SIZE, TITLE_COLOR);
+    drawGameText(TextFormat("Row: %d", playerRow), PANEL_LEFT, 380, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText(TextFormat("Column: %d", playerCol), PANEL_LEFT, 402, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText(TextFormat("Moves: %d", moveCount), PANEL_LEFT, 424, SMALL_TEXT_SIZE, TEXT_COLOR);
+}
+
+void drawInventory(int keyCount)
+{
+    drawGameText("Inventory", PANEL_LEFT, 525, TEXT_SIZE, TITLE_COLOR);
+    drawGameText(TextFormat("Keys: %d", keyCount), PANEL_LEFT, 560, SMALL_TEXT_SIZE, KEY_COLOR);
 }
 
 void drawCellInfo(char** maze, int size, int row, int col)
@@ -296,10 +306,18 @@ void drawCellInfo(char** maze, int size, int row, int col)
         {
             description = "the exit";
         }
+        else if (maze[row][col] == DOOR_CELL)
+        {
+            description = "a door, it needs a key";
+        }
+        else if (maze[row][col] == KEY_CELL)
+        {
+            description = "a key";
+        }
     }
 
-    drawGameText(TextFormat("Cell (%d, %d) is", row, col), PANEL_LEFT, 470, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText(description, PANEL_LEFT, 495, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText(TextFormat("Cell (%d, %d) is", row, col), PANEL_LEFT, 465, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText(description, PANEL_LEFT, 487, SMALL_TEXT_SIZE, TEXT_COLOR);
 }
 
 void drawWinScreen(int moveCount)

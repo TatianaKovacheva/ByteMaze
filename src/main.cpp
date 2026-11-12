@@ -178,6 +178,7 @@ int main()
             drawLegend();
             drawPlayerInfo(playerRow, playerCol, moveCount);
             drawCellInfo(maze, mazeSize, lastTargetRow, lastTargetCol);
+            drawInventory(0);
             break;
         case SCREEN_WIN:
             drawWinScreen(moveCount);

@@ -59,6 +59,9 @@ void drawLegend();
 // Draws the player's row, column and number of moves.
 void drawPlayerInfo(int playerRow, int playerCol, int moveCount);
 
+// Draws the inventory: how many keys the player has.
+void drawInventory(int keyCount);
+
 // Describes the cell at (row, col): wall, open cell, exit or outside the maze.
 void drawCellInfo(char** maze, int size, int row, int col);
 
