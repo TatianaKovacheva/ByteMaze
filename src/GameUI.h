@@ -50,7 +50,7 @@ int readDirection();
 // Draws the text maze from the top row to the bottom row.
 void drawMaze(char** maze, int size);
 
-// Draws the symbol P at the position of the player.
+// Draws the symbol @ at the position of the player.
 void drawPlayer(int size, int playerRow, int playerCol);
 
 // Explains the symbols used on the map.
