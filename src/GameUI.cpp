@@ -1,4 +1,4 @@
-// GameUI.cpp - raylib drawing and keyboard input. Owner: Plamen Rusev.
+// GameUI.cpp - raylib drawing and keyboard input.
 // Every function either draws one part of a screen or checks the keyboard.
 // No function waits for a key: raylib calls them again in every frame.
 
@@ -20,16 +20,36 @@ const int MAZE_AREA_SIZE = 650;
 // The information panel on the right of the maze.
 const int PANEL_LEFT = 690;
 
+// The font of the game. loadGameFont loads it once after the window is opened.
+Font gameFont;
+
+void loadGameFont()
+{
+    // Kenney Pixel, CC0 (public domain). If the file is missing, raylib uses its default font.
+    gameFont = LoadFontEx("assets/fonts/kenney_pixel.ttf", 64, nullptr, 0);
+}
+
+void unloadGameFont()
+{
+    UnloadFont(gameFont);
+}
+
+// Draws text with the game font. It is used instead of DrawText in the whole game.
+void drawGameText(const char* text, int x, int y, int size, Color color)
+{
+    DrawTextEx(gameFont, text, { (float)x, (float)y }, (float)size, 1.0f, color);
+}
+
 void drawMenuScreen()
 {
     ClearBackground(RAYWHITE);
 
-    DrawText("ByteMaze", 310, 120, TITLE_SIZE, DARKBLUE);
-    DrawText("1 - New game", 330, 260, TEXT_SIZE, DARKGRAY);
-    DrawText("2 - Help", 330, 310, TEXT_SIZE, DARKGRAY);
-    DrawText("3 - Self-tests", 330, 360, TEXT_SIZE, DARKGRAY);
-    DrawText("0 - Exit", 330, 410, TEXT_SIZE, DARKGRAY);
-    DrawText("Press a number key.", 330, 500, SMALL_TEXT_SIZE, GRAY);
+    drawGameText("ByteMaze", 310, 120, TITLE_SIZE, DARKBLUE);
+    drawGameText("1 - New game", 330, 260, TEXT_SIZE, DARKGRAY);
+    drawGameText("2 - Help", 330, 310, TEXT_SIZE, DARKGRAY);
+    drawGameText("3 - Self-tests", 330, 360, TEXT_SIZE, DARKGRAY);
+    drawGameText("0 - Exit", 330, 410, TEXT_SIZE, DARKGRAY);
+    drawGameText("Press a number key.", 330, 500, SMALL_TEXT_SIZE, GRAY);
 }
 
 int readMenuChoice()
@@ -59,20 +79,20 @@ void drawHelpScreen()
 {
     ClearBackground(RAYWHITE);
 
-    DrawText("How to play", 100, 60, TEXT_SIZE + 10, DARKBLUE);
-    DrawText("Start in the top-left corner and find the exit E", 100, 140, SMALL_TEXT_SIZE, DARKGRAY);
-    DrawText("in the bottom-right corner.", 100, 170, SMALL_TEXT_SIZE, DARKGRAY);
-    DrawText("You cannot walk through walls.", 100, 200, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText("How to play", 100, 60, TEXT_SIZE + 10, DARKBLUE);
+    drawGameText("Start in the top-left corner and find the exit E", 100, 140, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText("in the bottom-right corner.", 100, 170, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText("You cannot walk through walls.", 100, 200, SMALL_TEXT_SIZE, DARKGRAY);
 
-    DrawText("Map symbols", 100, 260, TEXT_SIZE, DARKBLUE);
-    DrawText("#  wall", 100, 310, SMALL_TEXT_SIZE, DARKGRAY);
-    DrawText(".  open cell", 100, 340, SMALL_TEXT_SIZE, DARKGRAY);
-    DrawText("E  exit", 100, 370, SMALL_TEXT_SIZE, DARKGRAY);
-    DrawText("P  player", 100, 400, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText("Map symbols", 100, 260, TEXT_SIZE, DARKBLUE);
+    drawGameText("#  wall", 100, 310, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText(".  open cell", 100, 340, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText("E  exit", 100, 370, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText("P  player", 100, 400, SMALL_TEXT_SIZE, DARKGRAY);
 
-    DrawText("Controls", 100, 460, TEXT_SIZE, DARKBLUE);
-    DrawText("Arrow keys or W, A, S, D - move", 100, 510, SMALL_TEXT_SIZE, DARKGRAY);
-    DrawText("Q - back to the menu", 100, 540, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText("Controls", 100, 460, TEXT_SIZE, DARKBLUE);
+    drawGameText("Arrow keys or W, A, S, D - move", 100, 510, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText("Q - back to the menu", 100, 540, SMALL_TEXT_SIZE, DARKGRAY);
 }
 
 bool readBackKey()
@@ -107,27 +127,27 @@ void drawSizeScreen(int typedSize, bool showError)
 {
     ClearBackground(RAYWHITE);
 
-    DrawText("Choose the maze size", 160, 120, TEXT_SIZE + 10, DARKBLUE);
-    DrawText(TextFormat("Type a number from %d to %d and press Enter.", MIN_MAZE_SIZE, MAX_MAZE_SIZE),
+    drawGameText("Choose the maze size", 160, 120, TEXT_SIZE + 10, DARKBLUE);
+    drawGameText(TextFormat("Type a number from %d to %d and press Enter.", MIN_MAZE_SIZE, MAX_MAZE_SIZE),
         160, 200, SMALL_TEXT_SIZE, DARKGRAY);
 
     // Show the typed number, or a line when nothing is typed yet.
     if (typedSize > 0)
     {
-        DrawText(TextFormat("%d", typedSize), 400, 280, TITLE_SIZE, BLACK);
+        drawGameText(TextFormat("%d", typedSize), 400, 280, TITLE_SIZE, BLACK);
     }
     else
     {
-        DrawText("_", 400, 280, TITLE_SIZE, BLACK);
+        drawGameText("_", 400, 280, TITLE_SIZE, BLACK);
     }
 
     if (showError)
     {
-        DrawText(TextFormat("The size must be from %d to %d.", MIN_MAZE_SIZE, MAX_MAZE_SIZE),
+        drawGameText(TextFormat("The size must be from %d to %d.", MIN_MAZE_SIZE, MAX_MAZE_SIZE),
             160, 380, SMALL_TEXT_SIZE, RED);
     }
 
-    DrawText("Backspace - delete     Q - back to the menu", 160, 600, SMALL_TEXT_SIZE, GRAY);
+    drawGameText("Backspace - delete     Q - back to the menu", 160, 600, SMALL_TEXT_SIZE, GRAY);
 }
 
 int readDirection()
@@ -186,7 +206,7 @@ void drawMaze(char** maze, int size)
                 color = DARKGREEN;
             }
 
-            DrawText(symbol, MAZE_LEFT + col * cellSize, MAZE_TOP + row * cellSize, cellSize, color);
+            drawGameText(symbol, MAZE_LEFT + col * cellSize, MAZE_TOP + row * cellSize, cellSize, color);
         }
     }
 }
@@ -199,29 +219,29 @@ void drawPlayer(int size, int playerRow, int playerCol)
 
     // Cover the symbol of the cell, then draw P on top.
     DrawRectangle(x, y, cellSize, cellSize, RAYWHITE);
-    DrawText("P", x, y, cellSize, RED);
+    drawGameText("P", x, y, cellSize, RED);
 }
 
 void drawLegend()
 {
-    DrawText("Map", PANEL_LEFT, 20, TEXT_SIZE, DARKBLUE);
-    DrawText("#  wall", PANEL_LEFT, 60, SMALL_TEXT_SIZE, DARKGRAY);
-    DrawText(".  open cell", PANEL_LEFT, 85, SMALL_TEXT_SIZE, GRAY);
-    DrawText("E  exit", PANEL_LEFT, 110, SMALL_TEXT_SIZE, DARKGREEN);
-    DrawText("P  you", PANEL_LEFT, 135, SMALL_TEXT_SIZE, RED);
+    drawGameText("Map", PANEL_LEFT, 20, TEXT_SIZE, DARKBLUE);
+    drawGameText("#  wall", PANEL_LEFT, 60, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText(".  open cell", PANEL_LEFT, 85, SMALL_TEXT_SIZE, GRAY);
+    drawGameText("E  exit", PANEL_LEFT, 110, SMALL_TEXT_SIZE, DARKGREEN);
+    drawGameText("P  you", PANEL_LEFT, 135, SMALL_TEXT_SIZE, RED);
 
-    DrawText("Keys", PANEL_LEFT, 185, TEXT_SIZE, DARKBLUE);
-    DrawText("Arrows or", PANEL_LEFT, 225, SMALL_TEXT_SIZE, DARKGRAY);
-    DrawText("W, A, S, D", PANEL_LEFT, 250, SMALL_TEXT_SIZE, DARKGRAY);
-    DrawText("Q - menu", PANEL_LEFT, 275, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText("Keys", PANEL_LEFT, 185, TEXT_SIZE, DARKBLUE);
+    drawGameText("Arrows or", PANEL_LEFT, 225, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText("W, A, S, D", PANEL_LEFT, 250, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText("Q - menu", PANEL_LEFT, 275, SMALL_TEXT_SIZE, DARKGRAY);
 }
 
 void drawPlayerInfo(int playerRow, int playerCol, int moveCount)
 {
-    DrawText("Position", PANEL_LEFT, 330, TEXT_SIZE, DARKBLUE);
-    DrawText(TextFormat("Row: %d", playerRow), PANEL_LEFT, 370, SMALL_TEXT_SIZE, DARKGRAY);
-    DrawText(TextFormat("Column: %d", playerCol), PANEL_LEFT, 395, SMALL_TEXT_SIZE, DARKGRAY);
-    DrawText(TextFormat("Moves: %d", moveCount), PANEL_LEFT, 420, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText("Position", PANEL_LEFT, 330, TEXT_SIZE, DARKBLUE);
+    drawGameText(TextFormat("Row: %d", playerRow), PANEL_LEFT, 370, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText(TextFormat("Column: %d", playerCol), PANEL_LEFT, 395, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText(TextFormat("Moves: %d", moveCount), PANEL_LEFT, 420, SMALL_TEXT_SIZE, DARKGRAY);
 }
 
 void drawCellInfo(char** maze, int size, int row, int col)
@@ -244,23 +264,23 @@ void drawCellInfo(char** maze, int size, int row, int col)
         }
     }
 
-    DrawText(TextFormat("Cell (%d, %d) is", row, col), PANEL_LEFT, 470, SMALL_TEXT_SIZE, DARKGRAY);
-    DrawText(description, PANEL_LEFT, 495, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText(TextFormat("Cell (%d, %d) is", row, col), PANEL_LEFT, 470, SMALL_TEXT_SIZE, DARKGRAY);
+    drawGameText(description, PANEL_LEFT, 495, SMALL_TEXT_SIZE, DARKGRAY);
 }
 
 void drawWinScreen(int moveCount)
 {
     ClearBackground(RAYWHITE);
 
-    DrawText("You found the exit!", 160, 200, TEXT_SIZE + 10, DARKGREEN);
-    DrawText(TextFormat("Moves: %d", moveCount), 160, 280, TEXT_SIZE, DARKGRAY);
-    DrawText("Q - back to the menu", 160, 380, SMALL_TEXT_SIZE, GRAY);
+    drawGameText("You found the exit!", 160, 200, TEXT_SIZE + 10, DARKGREEN);
+    drawGameText(TextFormat("Moves: %d", moveCount), 160, 280, TEXT_SIZE, DARKGRAY);
+    drawGameText("Q - back to the menu", 160, 380, SMALL_TEXT_SIZE, GRAY);
 }
 
 void drawTestScreen(const bool results[])
 {
     ClearBackground(RAYWHITE);
-    DrawText("Self-tests", 100, 60, TEXT_SIZE + 10, DARKBLUE);
+    drawGameText("Self-tests", 100, 60, TEXT_SIZE + 10, DARKBLUE);
 
     // One line for every test: PASS or FAIL and the name of the test.
     int passedCount = 0;
@@ -269,16 +289,16 @@ void drawTestScreen(const bool results[])
         int y = 120 + i * 30;
         if (results[i])
         {
-            DrawText("PASS", 100, y, SMALL_TEXT_SIZE, DARKGREEN);
+            drawGameText("PASS", 100, y, SMALL_TEXT_SIZE, DARKGREEN);
             passedCount++;
         }
         else
         {
-            DrawText("FAIL", 100, y, SMALL_TEXT_SIZE, RED);
+            drawGameText("FAIL", 100, y, SMALL_TEXT_SIZE, RED);
         }
-        DrawText(getTestName(i), 180, y, SMALL_TEXT_SIZE, DARKGRAY);
+        drawGameText(getTestName(i), 180, y, SMALL_TEXT_SIZE, DARKGRAY);
     }
 
-    DrawText(TextFormat("%d of %d tests passed.", passedCount, TEST_COUNT), 100, 480, TEXT_SIZE, DARKBLUE);
-    DrawText("Q - back to the menu", 100, 620, SMALL_TEXT_SIZE, GRAY);
+    drawGameText(TextFormat("%d of %d tests passed.", passedCount, TEST_COUNT), 100, 480, TEXT_SIZE, DARKBLUE);
+    drawGameText("Q - back to the menu", 100, 620, SMALL_TEXT_SIZE, GRAY);
 }
