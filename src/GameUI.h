@@ -18,6 +18,12 @@ const int MENU_SELF_TEST = 3;
 // The other return values are the DIRECTION_ constants from Maze.h.
 const int COMMAND_QUIT = 5;
 
+// Loads the game font. Call it once after InitWindow.
+void loadGameFont();
+
+// Releases the game font. Call it once before CloseWindow.
+void unloadGameFont();
+
 // Draws the game title and the numbered menu options.
 void drawMenuScreen();
 

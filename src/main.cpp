@@ -25,6 +25,7 @@ int main()
     // Show only warnings and errors from raylib in the console.
     SetTraceLogLevel(LOG_WARNING);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "ByteMaze");
+    loadGameFont();
     SetTargetFPS(60);
 
     int currentScreen = SCREEN_MENU;
@@ -194,6 +195,7 @@ int main()
     // Release the maze if a game was started.
     destroyMaze(maze, mazeSize);
 
+    unloadGameFont();
     CloseWindow();
     return 0;
 }
