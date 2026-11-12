@@ -331,3 +331,17 @@ bool isVisible(int playerRow, int playerCol, int row, int col, int fogRadius)
     int colDistance = abs(col - playerCol);
     return rowDistance <= fogRadius && colDistance <= fogRadius;
 }
+
+int calculateScore(int moveCount, int seconds, int difficulty)
+{
+    const int startScore = 1000;
+    const int minimumScore = 100;
+
+    int score = startScore - 2 * moveCount - 3 * seconds;
+    if (score < minimumScore)
+    {
+        score = minimumScore;
+    }
+
+    return score * getScoreMultiplier(difficulty);
+}
