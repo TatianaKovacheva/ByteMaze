@@ -14,6 +14,9 @@ const int MENU_NEW_GAME = 1;
 const int MENU_HELP = 2;
 const int MENU_SELF_TEST = 3;
 
+// Returned by readDifficultyChoice when no difficulty key was pressed in this frame.
+const int DIFFICULTY_NONE = 0;
+
 // Returned by readDirection when the player presses Q.
 // The other return values are the DIRECTION_ constants from Maze.h.
 const int COMMAND_QUIT = 5;
@@ -42,6 +45,13 @@ bool readSizeInput(int& typedSize);
 
 // Draws the typed maze size and an error message if showError is true.
 void drawSizeScreen(int typedSize, bool showError);
+
+// Draws the three difficulty levels and what they change.
+void drawDifficultyScreen();
+
+// Returns DIFFICULTY_EASY, DIFFICULTY_MEDIUM or DIFFICULTY_HARD from Maze.h
+// for keys 1, 2 and 3, or DIFFICULTY_NONE.
+int readDifficultyChoice();
 
 // Reads the arrow keys, W, A, S, D and Q. Does not wait for a key.
 // Returns a DIRECTION_ constant from Maze.h, DIRECTION_NONE or COMMAND_QUIT.

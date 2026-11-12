@@ -1,4 +1,4 @@
-// GameUI.cpp - raylib drawing and keyboard input. 
+// GameUI.cpp - raylib drawing and keyboard input.
 // Every function either draws one part of a screen or checks the keyboard.
 // No function waits for a key: raylib calls them again in every frame.
 
@@ -163,6 +163,71 @@ void drawSizeScreen(int typedSize, bool showError)
     }
 
     drawGameText("Backspace - delete     Q - back to the menu", 160, 600, SMALL_TEXT_SIZE, HINT_COLOR);
+}
+
+// Returns the name of a difficulty level, for example "Hard".
+const char* getDifficultyName(int difficulty)
+{
+    switch (difficulty)
+    {
+    case DIFFICULTY_EASY:
+        return "Easy";
+    case DIFFICULTY_HARD:
+        return "Hard";
+    default:
+        return "Medium";
+    }
+}
+
+// Draws one line of the difficulty screen with the settings from Maze.cpp.
+void drawDifficultyLine(int key, int difficulty, int y)
+{
+    int fogRadius = getFogRadius(difficulty);
+    const char* settings;
+
+    if (fogRadius == NO_FOG)
+    {
+        settings = TextFormat("%d%% open cells, no fog, doors: %d, score x%d",
+            getOpenCellChance(difficulty), getDoorCount(difficulty), getScoreMultiplier(difficulty));
+    }
+    else
+    {
+        settings = TextFormat("%d%% open cells, fog %d cells, doors: %d, score x%d",
+            getOpenCellChance(difficulty), fogRadius, getDoorCount(difficulty), getScoreMultiplier(difficulty));
+    }
+
+    drawGameText(TextFormat("%d - %s", key, getDifficultyName(difficulty)), 160, y, TEXT_SIZE, TEXT_COLOR);
+    drawGameText(settings, 160, y + 38, SMALL_TEXT_SIZE, HINT_COLOR);
+}
+
+void drawDifficultyScreen()
+{
+    ClearBackground(BACKGROUND_COLOR);
+
+    drawGameText("Choose the difficulty", 160, 100, TEXT_SIZE + 10, TITLE_COLOR);
+    drawDifficultyLine(1, DIFFICULTY_EASY, 200);
+    drawDifficultyLine(2, DIFFICULTY_MEDIUM, 300);
+    drawDifficultyLine(3, DIFFICULTY_HARD, 400);
+    drawGameText("Q - back to the menu", 160, 600, SMALL_TEXT_SIZE, HINT_COLOR);
+}
+
+int readDifficultyChoice()
+{
+    if (IsKeyPressed(KEY_ONE))
+    {
+        return DIFFICULTY_EASY;
+    }
+    if (IsKeyPressed(KEY_TWO))
+    {
+        return DIFFICULTY_MEDIUM;
+    }
+    if (IsKeyPressed(KEY_THREE))
+    {
+        return DIFFICULTY_HARD;
+    }
+
+    // No difficulty key was pressed in this frame.
+    return DIFFICULTY_NONE;
 }
 
 int readDirection()
