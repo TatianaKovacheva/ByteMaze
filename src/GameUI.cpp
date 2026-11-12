@@ -266,7 +266,7 @@ void drawTestScreen(const bool results[])
     int passedCount = 0;
     for (int i = 0; i < TEST_COUNT; i++)
     {
-        int y = 140 + i * 40;
+        int y = 120 + i * 30;
         if (results[i])
         {
             DrawText("PASS", 100, y, SMALL_TEXT_SIZE, DARKGREEN);

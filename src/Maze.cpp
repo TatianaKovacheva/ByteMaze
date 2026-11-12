@@ -4,8 +4,57 @@
 
 #include <cstdlib>
 
-// Chance in percent that a wall outside the path becomes an open cell.
-const int OPEN_CELL_CHANCE = 60;
+int getOpenCellChance(int difficulty)
+{
+    switch (difficulty)
+    {
+    case DIFFICULTY_EASY:
+        return 70;
+    case DIFFICULTY_HARD:
+        return 45;
+    default:
+        return 60;
+    }
+}
+
+int getDoorCount(int difficulty)
+{
+    switch (difficulty)
+    {
+    case DIFFICULTY_EASY:
+        return 3;
+    case DIFFICULTY_HARD:
+        return 1;
+    default:
+        return 2;
+    }
+}
+
+int getFogRadius(int difficulty)
+{
+    switch (difficulty)
+    {
+    case DIFFICULTY_EASY:
+        return NO_FOG;
+    case DIFFICULTY_HARD:
+        return 3;
+    default:
+        return 5;
+    }
+}
+
+int getScoreMultiplier(int difficulty)
+{
+    switch (difficulty)
+    {
+    case DIFFICULTY_EASY:
+        return 1;
+    case DIFFICULTY_HARD:
+        return 3;
+    default:
+        return 2;
+    }
+}
 
 char** createMaze(int size)
 {
@@ -90,13 +139,14 @@ void carvePath(char** maze, int size)
 }
 
 // Turns some of the walls outside the path into open cells at random.
-void openRandomCells(char** maze, int size)
+// openChance is the chance in percent for every wall.
+void openRandomCells(char** maze, int size, int openChance)
 {
     for (int row = 0; row < size; row++)
     {
         for (int col = 0; col < size; col++)
         {
-            if (maze[row][col] == WALL_CELL && rand() % 100 < OPEN_CELL_CHANCE)
+            if (maze[row][col] == WALL_CELL && rand() % 100 < openChance)
             {
                 maze[row][col] = OPEN_CELL;
             }
@@ -104,7 +154,59 @@ void openRandomCells(char** maze, int size)
     }
 }
 
-void generateMaze(char** maze, int size)
+// Puts count keys on random open cells, but not on the start or the exit.
+// It is called when only the path is open, so every key can be reached without a door.
+void placeKeys(char** maze, int size, int count)
+{
+    int placed = 0;
+    int attempts = 0;
+
+    // attempts stops the loop even if there are not enough free cells.
+    while (placed < count && attempts < size * size * 10)
+    {
+        int row = rand() % size;
+        int col = rand() % size;
+        bool isStart = row == 0 && col == 0;
+        bool isExit = row == size - 1 && col == size - 1;
+
+        if (maze[row][col] == OPEN_CELL && !isStart && !isExit)
+        {
+            maze[row][col] = KEY_CELL;
+            placed++;
+        }
+        attempts++;
+    }
+}
+
+// Puts count doors in walls that are between two open cells in a straight line.
+// Such a door connects two corridors, so it can make the way to the exit shorter.
+void placeDoors(char** maze, int size, int count)
+{
+    int placed = 0;
+    int attempts = 0;
+
+    while (placed < count && attempts < size * size * 10)
+    {
+        // Not on the edge, so all four neighbours exist.
+        int row = 1 + rand() % (size - 2);
+        int col = 1 + rand() % (size - 2);
+
+        if (maze[row][col] == WALL_CELL)
+        {
+            bool betweenLeftAndRight = maze[row][col - 1] != WALL_CELL && maze[row][col + 1] != WALL_CELL;
+            bool betweenUpAndDown = maze[row - 1][col] != WALL_CELL && maze[row + 1][col] != WALL_CELL;
+
+            if (betweenLeftAndRight || betweenUpAndDown)
+            {
+                maze[row][col] = DOOR_CELL;
+                placed++;
+            }
+        }
+        attempts++;
+    }
+}
+
+void generateMaze(char** maze, int size, int difficulty)
 {
     // Start again from a maze full of walls.
     for (int row = 0; row < size; row++)
@@ -116,7 +218,9 @@ void generateMaze(char** maze, int size)
     }
 
     carvePath(maze, size);
-    openRandomCells(maze, size);
+    placeKeys(maze, size, getDoorCount(difficulty));
+    openRandomCells(maze, size, getOpenCellChance(difficulty));
+    placeDoors(maze, size, getDoorCount(difficulty));
 
     // The exit is always in the bottom-right corner.
     maze[size - 1][size - 1] = EXIT_CELL;
@@ -130,7 +234,8 @@ bool isInside(int size, int row, int col)
 bool canMoveTo(char** maze, int size, int row, int col)
 {
     // isInside is checked first, so maze[row][col] is never read outside the array.
-    return isInside(size, row, col) && maze[row][col] != WALL_CELL;
+    // A closed door blocks the way like a wall. movePlayerWithKeys can open it.
+    return isInside(size, row, col) && maze[row][col] != WALL_CELL && maze[row][col] != DOOR_CELL;
 }
 
 void getTargetPosition(int row, int col, int direction, int& targetRow, int& targetCol)
@@ -180,7 +285,49 @@ bool movePlayer(char** maze, int size, int& playerRow, int& playerCol, int direc
     return true;
 }
 
+bool movePlayerWithKeys(char** maze, int size, int& playerRow, int& playerCol, int direction, int& keyCount)
+{
+    int targetRow;
+    int targetCol;
+    getTargetPosition(playerRow, playerCol, direction, targetRow, targetCol);
+
+    // A closed door opens with one key from the inventory.
+    bool isMove = direction >= DIRECTION_UP && direction <= DIRECTION_RIGHT;
+    if (isMove && isInside(size, targetRow, targetCol) && maze[targetRow][targetCol] == DOOR_CELL && keyCount > 0)
+    {
+        keyCount--;
+        maze[targetRow][targetCol] = OPEN_CELL;
+    }
+
+    if (!movePlayer(maze, size, playerRow, playerCol, direction))
+    {
+        return false;
+    }
+
+    // A key on the new cell goes into the inventory.
+    if (maze[playerRow][playerCol] == KEY_CELL)
+    {
+        keyCount++;
+        maze[playerRow][playerCol] = OPEN_CELL;
+    }
+
+    return true;
+}
+
 bool isAtExit(int size, int row, int col)
 {
     return row == size - 1 && col == size - 1;
+}
+
+bool isVisible(int playerRow, int playerCol, int row, int col, int fogRadius)
+{
+    if (fogRadius == NO_FOG)
+    {
+        return true;
+    }
+
+    // abs gives the distance without the sign: abs(-3) is 3.
+    int rowDistance = abs(row - playerRow);
+    int colDistance = abs(col - playerCol);
+    return rowDistance <= fogRadius && colDistance <= fogRadius;
 }

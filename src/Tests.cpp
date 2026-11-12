@@ -29,6 +29,14 @@ const char* getTestName(int index)
         return "Every generated maze can be solved";
     case 7:
         return "Start and exit of a generated maze";
+    case 8:
+        return "A door needs a key";
+    case 9:
+        return "A key goes into the inventory";
+    case 10:
+        return "Fog hides the far cells";
+    case 11:
+        return "Score formula and multiplier";
     default:
         return "Unknown test";
     }
@@ -54,6 +62,14 @@ bool runTest(int index)
         return testPathExists();
     case 7:
         return testGeneratedCells();
+    case 8:
+        return testDoorNeedsKey();
+    case 9:
+        return testKeyIsPickedUp();
+    case 10:
+        return testFogVisibility();
+    case 11:
+        return testScoreCalculation();
     default:
         return false;
     }
@@ -258,4 +274,64 @@ bool testGeneratedCells()
 
     destroyMaze(maze, size);
     return startOpen && exitInCorner;
+}
+
+bool testDoorNeedsKey()
+{
+    char** maze = createTestMaze();
+    maze[0][3] = DOOR_CELL;
+    maze[0][4] = OPEN_CELL;
+    int row = 0;
+    int col = 2;
+    int keyCount = 0;
+
+    // Without a key the door at (0,3) works like a wall.
+    bool movedWithoutKey = movePlayerWithKeys(maze, MIN_MAZE_SIZE, row, col, DIRECTION_RIGHT, keyCount);
+
+    // With one key the door opens and the key is used.
+    keyCount = 1;
+    bool movedWithKey = movePlayerWithKeys(maze, MIN_MAZE_SIZE, row, col, DIRECTION_RIGHT, keyCount);
+    bool doorOpened = maze[0][3] == OPEN_CELL;
+
+    destroyMaze(maze, MIN_MAZE_SIZE);
+    return !movedWithoutKey && movedWithKey && doorOpened && keyCount == 0 && col == 3;
+}
+
+bool testKeyIsPickedUp()
+{
+    char** maze = createTestMaze();
+    maze[0][1] = KEY_CELL;
+    int row = 0;
+    int col = 0;
+    int keyCount = 0;
+
+    bool moved = movePlayerWithKeys(maze, MIN_MAZE_SIZE, row, col, DIRECTION_RIGHT, keyCount);
+    bool keyRemoved = maze[0][1] == OPEN_CELL;
+
+    destroyMaze(maze, MIN_MAZE_SIZE);
+    return moved && keyCount == 1 && keyRemoved;
+}
+
+bool testFogVisibility()
+{
+    // The player is at (5,5) and sees 3 cells in every direction.
+    bool nearVisible = isVisible(5, 5, 5, 8, 3) && isVisible(5, 5, 2, 2, 3);
+    bool farHidden = !isVisible(5, 5, 5, 9, 3) && !isVisible(5, 5, 1, 5, 3);
+
+    // Without fog even the farthest cell is visible.
+    bool noFogVisible = isVisible(0, 0, MAX_MAZE_SIZE - 1, MAX_MAZE_SIZE - 1, NO_FOG);
+
+    return nearVisible && farHidden && noFogVisible;
+}
+
+bool testScoreCalculation()
+{
+    // 1000 - 2 * 10 - 3 * 20 = 920
+    bool easyScore = calculateScore(10, 20, DIFFICULTY_EASY) == 920;
+    bool hardScore = calculateScore(10, 20, DIFFICULTY_HARD) == 920 * 3;
+
+    // A very slow game still gets the minimum of 100 points, times 2 on Medium.
+    bool minimumScore = calculateScore(1000, 1000, DIFFICULTY_MEDIUM) == 200;
+
+    return easyScore && hardScore && minimumScore;
 }
