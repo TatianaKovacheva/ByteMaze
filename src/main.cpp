@@ -45,6 +45,15 @@ int main()
     int difficulty = DIFFICULTY_MEDIUM;
     int keyCount = 0;
 
+    // Time and score. GetTime returns the seconds since InitWindow.
+    double startTime = 0.0;
+    int seconds = 0;
+    int score = 0;
+
+    // The best score for every size and difficulty while the program runs.
+    // {} sets every element to 0.
+    int bestScores[MAX_MAZE_SIZE + 1][DIFFICULTY_HARD + 1] = {};
+
     // The cell the player tried to enter last. drawCellInfo describes it.
     int lastTargetRow = 0;
     int lastTargetCol = 0;
@@ -133,6 +142,7 @@ int main()
                 keyCount = 0;
                 lastTargetRow = 0;
                 lastTargetCol = 0;
+                startTime = GetTime();
                 currentScreen = SCREEN_GAME;
             }
             break;
@@ -140,6 +150,7 @@ int main()
         case SCREEN_GAME:
         {
             int direction = readDirection();
+            seconds = (int)(GetTime() - startTime);
             if (direction == COMMAND_QUIT)
             {
                 // The game is left, so its memory is released.
@@ -159,6 +170,12 @@ int main()
 
                 if (isAtExit(mazeSize, playerRow, playerCol))
                 {
+                    score = calculateScore(moveCount, seconds, difficulty);
+                    if (score > bestScores[mazeSize][difficulty])
+                    {
+                        bestScores[mazeSize][difficulty] = score;
+                    }
+
                     destroyMaze(maze, mazeSize);
                     maze = nullptr;
                     currentScreen = SCREEN_WIN;
@@ -201,9 +218,10 @@ int main()
             drawPlayerInfo(playerRow, playerCol, moveCount);
             drawCellInfo(maze, mazeSize, lastTargetRow, lastTargetCol);
             drawInventory(keyCount);
+            drawTimer(seconds);
             break;
         case SCREEN_WIN:
-            drawWinScreen(moveCount, 0, 0, 0);
+            drawWinScreen(moveCount, seconds, score, bestScores[mazeSize][difficulty]);
             break;
         case SCREEN_TESTS:
             drawTestScreen(testResults);
