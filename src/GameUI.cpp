@@ -82,6 +82,11 @@ void drawGameText(const char* text, int x, int y, int size, Color color)
     DrawTextEx(gameFont, text, { (float)x, (float)y }, (float)size, 1.0f, color);
 }
 
+// These drawing functions are written lower in this file. The declarations let the menu
+// and the win screen use them before that.
+void drawAstronaut(int x, int y, int cellSize, Theme theme);
+void drawExit(int x, int y, int cellSize, Color color);
+
 // Background of the screens outside the maze: a dark sky, moving stars and a planet with a ring.
 void drawSpaceBackground()
 {
@@ -114,14 +119,32 @@ void drawSpaceBackground()
 
 void drawMenuScreen()
 {
-    ClearBackground(BACKGROUND_COLOR);
+    drawSpaceBackground();
+    Theme theme = getTheme(DIFFICULTY_EASY);
+    float time = (float)GetTime();
 
-    drawGameText("ByteMaze", 310, 120, TITLE_SIZE, TITLE_COLOR);
-    drawGameText("1 - New game", 330, 260, TEXT_SIZE, TEXT_COLOR);
-    drawGameText("2 - Help", 330, 310, TEXT_SIZE, TEXT_COLOR);
-    drawGameText("3 - Self-tests", 330, 360, TEXT_SIZE, TEXT_COLOR);
-    drawGameText("0 - Exit", 330, 410, TEXT_SIZE, TEXT_COLOR);
+    // The title twice: first a dark shadow 4 pixels lower, then the title on top.
+    drawGameText("ByteMaze", 284, 84, TITLE_SIZE + 20, { 20, 40, 90, 255 });
+    drawGameText("ByteMaze", 280, 80, TITLE_SIZE + 20, TITLE_COLOR);
+    drawGameText("escape from the space station", 285, 165, SMALL_TEXT_SIZE, HINT_COLOR);
+
+    // A half transparent panel with a light border behind the options.
+    Rectangle panel = { 290, 220, 320, 250 };
+    DrawRectangleRounded(panel, 0.15f, 8, Fade(BLACK, 0.5f));
+    DrawRectangleRoundedLinesEx(panel, 0.15f, 8, 2, Fade(TITLE_COLOR, 0.6f));
+
+    drawGameText("1 - New game", 330, 250, TEXT_SIZE, TEXT_COLOR);
+    drawGameText("2 - Help", 330, 300, TEXT_SIZE, TEXT_COLOR);
+    drawGameText("3 - Self-tests", 330, 350, TEXT_SIZE, TEXT_COLOR);
+    drawGameText("0 - Exit", 330, 400, TEXT_SIZE, TEXT_COLOR);
     drawGameText("Press a number key.", 330, 500, SMALL_TEXT_SIZE, HINT_COLOR);
+
+    // The astronaut floats up and down: sinf moves it 12 pixels each way.
+    int floatY = 280 + (int)(sinf(time * 2.0f) * 12.0f);
+    drawAstronaut(90, floatY, 112, theme);
+
+    // The portal on the right turns, like the exit in the maze.
+    drawExit(660, 270, 140, theme.exit);
 }
 
 int readMenuChoice()
