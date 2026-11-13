@@ -212,8 +212,8 @@ int main()
             drawDifficultyScreen();
             break;
         case SCREEN_GAME:
-            drawMaze(maze, mazeSize, playerRow, playerCol, getFogRadius(difficulty));
-            drawPlayer(mazeSize, playerRow, playerCol);
+            drawMaze(maze, mazeSize, playerRow, playerCol, getFogRadius(difficulty), difficulty);
+            drawPlayer(mazeSize, playerRow, playerCol, difficulty);
             drawLegend();
             drawPlayerInfo(playerRow, playerCol, moveCount);
             drawCellInfo(maze, mazeSize, lastTargetRow, lastTargetCol);

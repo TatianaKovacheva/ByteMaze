@@ -33,6 +33,36 @@ const Color PLAYER_COLOR = { 255, 210, 80, 255 };
 const Color DOOR_COLOR = { 240, 140, 70, 255 };
 const Color KEY_COLOR = { 250, 230, 120, 255 };
 
+// The colors of the space station. Every difficulty level has its own look.
+struct Theme
+{
+    Color background;
+    Color floor;
+    Color wall;
+    Color wallEdge;
+    Color player;
+    Color key;
+    Color door;
+    Color exit;
+};
+
+// Easy: a station in the stars. Medium: a hologram. Hard: an emergency alarm.
+Theme getTheme(int difficulty)
+{
+    switch (difficulty)
+    {
+    case DIFFICULTY_EASY:
+        return { { 5, 7, 26, 255 },{ 17, 24, 58, 255 },{ 59, 74, 112, 255 },{ 124, 141, 181, 255 },
+            { 224, 231, 255, 255 },{ 163, 230, 53, 255 },{ 244, 114, 182, 255 },{ 56, 189, 248, 255 } };
+    case DIFFICULTY_HARD:
+        return { { 18, 5, 7, 255 },{ 36, 16, 15, 255 },{ 74, 58, 58, 255 },{ 154, 139, 139, 255 },
+            { 254, 243, 199, 255 },{ 250, 204, 21, 255 },{ 239, 68, 68, 255 },{ 249, 115, 22, 255 } };
+    default:
+        return { { 2, 12, 20, 255 },{ 5, 32, 46, 255 },{ 14, 79, 92, 255 },{ 34, 211, 238, 255 },
+            { 207, 250, 254, 255 },{ 103, 232, 249, 255 },{ 240, 171, 252, 255 },{ 165, 243, 252, 255 } };
+    }
+}
+
 // The font of the game. loadGameFont loads it once after the window is opened.
 Font gameFont;
 
@@ -296,9 +326,10 @@ Color getCellColor(char cell)
     return WALL_COLOR;
 }
 
-void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius)
+void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius, int difficulty)
 {
-    ClearBackground(BACKGROUND_COLOR);
+    Theme theme = getTheme(difficulty);
+    ClearBackground(theme.background);
     int cellSize = getCellSize(size);
 
     // From the top row to the bottom row, every cell is drawn as its symbol.
@@ -309,6 +340,20 @@ void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius
             // A cell in the fog stays dark.
             if (isVisible(playerRow, playerCol, row, col, fogRadius))
             {
+                int x = MAZE_LEFT + col * cellSize;
+                int y = MAZE_TOP + row * cellSize;
+
+                // A wall panel with a light top edge, or a floor tile. The 1 pixel gap shows the grid.
+                if (maze[row][col] == WALL_CELL)
+                {
+                    DrawRectangle(x, y, cellSize - 1, cellSize - 1, theme.wall);
+                    DrawRectangle(x, y, cellSize - 1, cellSize / 6, theme.wallEdge);
+                }
+                else
+                {
+                    DrawRectangle(x, y, cellSize - 1, cellSize - 1, theme.floor);
+                }
+
                 char symbol[2] = { getCellSymbol(maze[row][col]), '\0' };
                 drawGameText(symbol, MAZE_LEFT + col * cellSize, MAZE_TOP + row * cellSize, cellSize, getCellColor(maze[row][col]));
             }
@@ -316,15 +361,16 @@ void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius
     }
 }
 
-void drawPlayer(int size, int playerRow, int playerCol)
+void drawPlayer(int size, int playerRow, int playerCol, int difficulty)
 {
+    Theme theme = getTheme(difficulty);
     int cellSize = getCellSize(size);
     int x = MAZE_LEFT + playerCol * cellSize;
     int y = MAZE_TOP + playerRow * cellSize;
 
-    // Cover the symbol of the cell, then draw @ on top.
-    DrawRectangle(x, y, cellSize, cellSize, BACKGROUND_COLOR);
-    drawGameText("@", x, y, cellSize, PLAYER_COLOR);
+    // Cover the symbol of the cell with a floor tile, then draw @ on top.
+    DrawRectangle(x, y, cellSize - 1, cellSize - 1, theme.floor);
+    drawGameText("@", x, y, cellSize, theme.player);
 }
 
 void drawLegend()

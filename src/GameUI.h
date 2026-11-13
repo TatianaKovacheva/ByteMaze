@@ -57,12 +57,12 @@ int readDifficultyChoice();
 // Returns a DIRECTION_ constant from Maze.h, DIRECTION_NONE or COMMAND_QUIT.
 int readDirection();
 
-// Draws the text maze from the top row to the bottom row.
+// Draws the maze from the top row to the bottom row in the colors of the difficulty level.
 // Cells that are hidden by the fog are not drawn.
-void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius);
+void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius, int difficulty);
 
-// Draws the symbol @ at the position of the player.
-void drawPlayer(int size, int playerRow, int playerCol);
+// Draws the player at its position.
+void drawPlayer(int size, int playerRow, int playerCol, int difficulty);
 
 // Explains the symbols used on the map.
 void drawLegend();
