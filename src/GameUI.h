@@ -57,15 +57,15 @@ int readDifficultyChoice();
 // Returns a DIRECTION_ constant from Maze.h, DIRECTION_NONE or COMMAND_QUIT.
 int readDirection();
 
-// Draws the text maze from the top row to the bottom row.
+// Draws the maze from the top row to the bottom row in the colors of the difficulty level.
 // Cells that are hidden by the fog are not drawn.
-void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius);
+void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius, int difficulty);
 
-// Draws the symbol @ at the position of the player.
-void drawPlayer(int size, int playerRow, int playerCol);
+// Draws the player at its position.
+void drawPlayer(int size, int playerRow, int playerCol, int difficulty);
 
-// Explains the symbols used on the map.
-void drawLegend();
+// Explains the icons used on the map, in the colors of the difficulty level.
+void drawLegend(int difficulty);
 
 // Draws the player's row, column and number of moves.
 void drawPlayerInfo(int playerRow, int playerCol, int moveCount);
@@ -80,7 +80,8 @@ void drawCellInfo(char** maze, int size, int row, int col);
 void drawTimer(int seconds);
 
 // Congratulates the player and shows the moves, the time, the score and the best score.
-void drawWinScreen(int moveCount, int seconds, int score, int bestScore);
+// newBest is true when the score is higher than the old best score.
+void drawWinScreen(int moveCount, int seconds, int score, int bestScore, bool newBest);
 
 // Draws PASS or FAIL for every test. results has TEST_COUNT elements.
 void drawTestScreen(const bool results[]);

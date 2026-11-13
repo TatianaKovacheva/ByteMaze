@@ -7,6 +7,8 @@
 #include "Tests.h"
 #include "raylib.h"
 
+#include <cmath>
+
 // Text sizes in pixels.
 const int TITLE_SIZE = 60;
 const int TEXT_SIZE = 30;
@@ -21,17 +23,43 @@ const int MAZE_AREA_SIZE = 650;
 const int PANEL_LEFT = 690;
 
 // Colors of the ByteMaze style: a dark background with bright symbols.
-const Color BACKGROUND_COLOR = { 18, 22, 30, 255 };
 const Color TITLE_COLOR = { 120, 200, 255, 255 };
 const Color TEXT_COLOR = { 220, 225, 235, 255 };
 const Color HINT_COLOR = { 130, 140, 155, 255 };
 const Color GOOD_COLOR = { 110, 220, 120, 255 };
 const Color BAD_COLOR = { 240, 90, 90, 255 };
-const Color WALL_COLOR = { 70, 140, 160, 255 };
-const Color PATH_COLOR = { 90, 100, 115, 255 };
 const Color PLAYER_COLOR = { 255, 210, 80, 255 };
-const Color DOOR_COLOR = { 240, 140, 70, 255 };
 const Color KEY_COLOR = { 250, 230, 120, 255 };
+
+// The colors of the space station. Every difficulty level has its own look.
+struct Theme
+{
+    Color background;
+    Color floor;
+    Color wall;
+    Color wallEdge;
+    Color player;
+    Color key;
+    Color door;
+    Color exit;
+};
+
+// Easy: a station in the stars. Medium: a hologram. Hard: an emergency alarm.
+Theme getTheme(int difficulty)
+{
+    switch (difficulty)
+    {
+    case DIFFICULTY_EASY:
+        return { { 5, 7, 26, 255 },{ 17, 24, 58, 200 },{ 59, 74, 112, 255 },{ 124, 141, 181, 255 },
+            { 224, 231, 255, 255 },{ 163, 230, 53, 255 },{ 244, 114, 182, 255 },{ 56, 189, 248, 255 } };
+    case DIFFICULTY_HARD:
+        return { { 18, 5, 7, 255 },{ 36, 16, 15, 255 },{ 74, 58, 58, 255 },{ 154, 139, 139, 255 },
+            { 254, 243, 199, 255 },{ 250, 204, 21, 255 },{ 239, 68, 68, 255 },{ 249, 115, 22, 255 } };
+    default:
+        return { { 2, 12, 20, 255 },{ 5, 32, 46, 255 },{ 14, 79, 92, 255 },{ 34, 211, 238, 255 },
+            { 207, 250, 254, 255 },{ 103, 232, 249, 255 },{ 240, 171, 252, 255 },{ 165, 243, 252, 255 } };
+    }
+}
 
 // The font of the game. loadGameFont loads it once after the window is opened.
 Font gameFont;
@@ -53,16 +81,69 @@ void drawGameText(const char* text, int x, int y, int size, Color color)
     DrawTextEx(gameFont, text, { (float)x, (float)y }, (float)size, 1.0f, color);
 }
 
+// These drawing functions are written lower in this file. The declarations let the menu
+// and the win screen use them before that.
+void drawAstronaut(int x, int y, int cellSize, Theme theme);
+void drawExit(int x, int y, int cellSize, Color color);
+
+// Background of the screens outside the maze: a dark sky, moving stars and a planet with a ring.
+void drawSpaceBackground()
+{
+    ClearBackground({ 5, 7, 20, 255 });
+    float time = (float)GetTime();
+
+    // 90 stars in three layers: the far ones are small and slow, the near ones big and fast.
+    for (int i = 0; i < 90; i++)
+    {
+        int layer = i % 3;
+        float speed = 8.0f + layer * 14.0f;
+        float x = fmodf(i * 211.0f - time * speed, (float)WINDOW_WIDTH);
+        if (x < 0)
+        {
+            x = x + WINDOW_WIDTH;
+        }
+        int y = (i * 97) % WINDOW_HEIGHT;
+
+        // Every star twinkles: its brightness follows a sine wave with its own start.
+        float twinkle = (sinf(time * 2.0f + i) + 1.0f) / 2.0f;
+        unsigned char light = (unsigned char)(90 + 120 * twinkle);
+        DrawRectangle((int)x, y, 1 + layer, 1 + layer, { light, light, 255, 255 });
+    }
+
+    // The planet: a blue circle, a darker shadow on one side and a ring around it.
+    DrawCircle(790, 600, 90, { 40, 70, 160, 255 });
+    DrawCircle(808, 618, 70, { 25, 40, 100, 255 });
+    DrawEllipseLinesEx({ 790, 600 }, 150, 28, 4, { 120, 200, 255, 180 });
+}
+
 void drawMenuScreen()
 {
-    ClearBackground(BACKGROUND_COLOR);
+    drawSpaceBackground();
+    Theme theme = getTheme(DIFFICULTY_EASY);
+    float time = (float)GetTime();
 
-    drawGameText("ByteMaze", 310, 120, TITLE_SIZE, TITLE_COLOR);
-    drawGameText("1 - New game", 330, 260, TEXT_SIZE, TEXT_COLOR);
-    drawGameText("2 - Help", 330, 310, TEXT_SIZE, TEXT_COLOR);
-    drawGameText("3 - Self-tests", 330, 360, TEXT_SIZE, TEXT_COLOR);
-    drawGameText("0 - Exit", 330, 410, TEXT_SIZE, TEXT_COLOR);
+    // The title twice: first a dark shadow 4 pixels lower, then the title on top.
+    drawGameText("ByteMaze", 284, 84, TITLE_SIZE + 20, { 20, 40, 90, 255 });
+    drawGameText("ByteMaze", 280, 80, TITLE_SIZE + 20, TITLE_COLOR);
+    drawGameText("escape from the space station", 285, 165, SMALL_TEXT_SIZE, HINT_COLOR);
+
+    // A half transparent panel with a light border behind the options.
+    Rectangle panel = { 290, 220, 320, 250 };
+    DrawRectangleRounded(panel, 0.15f, 8, Fade(BLACK, 0.5f));
+    DrawRectangleRoundedLinesEx(panel, 0.15f, 8, 2, Fade(TITLE_COLOR, 0.6f));
+
+    drawGameText("1 - New game", 330, 250, TEXT_SIZE, TEXT_COLOR);
+    drawGameText("2 - Help", 330, 300, TEXT_SIZE, TEXT_COLOR);
+    drawGameText("3 - Self-tests", 330, 350, TEXT_SIZE, TEXT_COLOR);
+    drawGameText("0 - Exit", 330, 400, TEXT_SIZE, TEXT_COLOR);
     drawGameText("Press a number key.", 330, 500, SMALL_TEXT_SIZE, HINT_COLOR);
+
+    // The astronaut floats up and down: sinf moves it 12 pixels each way.
+    int floatY = 280 + (int)(sinf(time * 2.0f) * 12.0f);
+    drawAstronaut(90, floatY, 112, theme);
+
+    // The portal on the right turns, like the exit in the maze.
+    drawExit(660, 270, 140, theme.exit);
 }
 
 int readMenuChoice()
@@ -86,28 +167,6 @@ int readMenuChoice()
 
     // No menu key was pressed in this frame.
     return MENU_NONE;
-}
-
-void drawHelpScreen()
-{
-    ClearBackground(BACKGROUND_COLOR);
-
-    drawGameText("How to play", 100, 60, TEXT_SIZE + 10, TITLE_COLOR);
-    drawGameText("Start in the top-left corner and find the exit >", 100, 140, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("in the bottom-right corner.", 100, 170, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("You cannot walk through walls.", 100, 200, SMALL_TEXT_SIZE, TEXT_COLOR);
-
-    drawGameText("Map symbols", 100, 260, TEXT_SIZE, TITLE_COLOR);
-    drawGameText("#  wall", 100, 310, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText(".  path", 100, 340, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText(">  exit", 100, 370, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("@  player", 100, 400, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("D  door: you need a key to open it, it can be a shorter way", 100, 430, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("K  key: step on it to put it into the inventory", 100, 460, SMALL_TEXT_SIZE, TEXT_COLOR);
-
-    drawGameText("Controls", 100, 510, TEXT_SIZE, TITLE_COLOR);
-    drawGameText("Arrow keys or W, A, S, D - move", 100, 555, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("Q - back to the menu", 100, 585, SMALL_TEXT_SIZE, TEXT_COLOR);
 }
 
 bool readBackKey()
@@ -140,7 +199,7 @@ bool readSizeInput(int& typedSize)
 
 void drawSizeScreen(int typedSize, bool showError)
 {
-    ClearBackground(BACKGROUND_COLOR);
+    drawSpaceBackground();
 
     drawGameText("Choose the maze size", 160, 120, TEXT_SIZE + 10, TITLE_COLOR);
     drawGameText(TextFormat("Type a number from %d to %d and press Enter.", MIN_MAZE_SIZE, MAX_MAZE_SIZE),
@@ -202,7 +261,7 @@ void drawDifficultyLine(int key, int difficulty, int y)
 
 void drawDifficultyScreen()
 {
-    ClearBackground(BACKGROUND_COLOR);
+    drawSpaceBackground();
 
     drawGameText("Choose the difficulty", 160, 100, TEXT_SIZE + 10, TITLE_COLOR);
     drawDifficultyLine(1, DIFFICULTY_EASY, 200);
@@ -264,44 +323,172 @@ int getCellSize(int size)
     return MAZE_AREA_SIZE / size;
 }
 
-// Returns the symbol that is drawn for a cell. The exit is stored as E but drawn as >.
-char getCellSymbol(char cell)
+// Pixel icons: 8 rows of 8 characters. '1', '2' and '3' are three colors, '.' is an empty pixel.
+const char* const PLAYER_ICON[8] = {
+    "..2222..",
+    ".233332.",
+    ".231132.",
+    ".233332.",
+    "..2222..",
+    ".111111.",
+    "1.1111.1",
+    "..1..1.." };
+
+const char* const KEY_ICON[8] = {
+    "........",
+    ".111111.",
+    ".122221.",
+    ".121121.",
+    ".122221.",
+    ".111111.",
+    "..1..1..",
+    "........" };
+
+const char* const DOOR_ICON[8] = {
+    "11111111",
+    "12233221",
+    "12233221",
+    "12233221",
+    "12233221",
+    "12233221",
+    "12233221",
+    "11111111" };
+
+const char* const WALL_ICON[8] = {
+    "22222222",
+    "21111112",
+    "21222212",
+    "21211212",
+    "21211212",
+    "21222212",
+    "21111112",
+    "22222222" };
+
+// Draws an icon in a square of cellSize pixels. Every icon pixel is cellSize / 8 pixels wide.
+void drawIcon(const char* const icon[], int x, int y, int cellSize, Color color1, Color color2, Color color3)
 {
-    if (cell == EXIT_CELL)
+    float pixel = cellSize / 8.0f;
+
+    for (int row = 0; row < 8; row++)
     {
-        return '>';
+        for (int col = 0; col < 8; col++)
+        {
+            char mark = icon[row][col];
+            Color color = color1;
+            if (mark == '2')
+            {
+                color = color2;
+            }
+            else if (mark == '3')
+            {
+                color = color3;
+            }
+
+            if (mark != '.')
+            {
+                // + 0.5f closes the small gaps between the pixels.
+                DrawRectangleV({ x + col * pixel, y + row * pixel }, { pixel + 0.5f, pixel + 0.5f }, color);
+            }
+        }
     }
-    return cell;
 }
 
-// Returns the color of the symbol of a cell.
-Color getCellColor(char cell)
+// Draws the exit as a ring: a portal to the next level of the station.
+void drawExit(int x, int y, int cellSize, Color color)
 {
+    Vector2 center = { x + cellSize / 2.0f, y + cellSize / 2.0f };
+
+    // GetTime grows all the time, so the start angle grows and the ring turns: 120 degrees per second.
+    float angle = (float)GetTime() * 120.0f;
+    DrawRing(center, cellSize * 0.25f, cellSize * 0.42f, angle, angle + 300.0f, 24, color);
+}
+
+// Draws one cell of the maze: a floor tile and the icon of what is in the cell.
+void drawCell(char cell, int x, int y, int cellSize, Theme theme)
+{
+    if (cell == WALL_CELL)
+    {
+        drawIcon(WALL_ICON, x, y, cellSize, theme.wall, theme.wallEdge, theme.wall);
+        return;
+    }
+
+    // Every other cell has a floor tile. The 1 pixel gap shows the grid.
+    DrawRectangle(x, y, cellSize - 1, cellSize - 1, theme.floor);
+
     if (cell == OPEN_CELL)
     {
-        return PATH_COLOR;
+        // A small light in the middle of the floor.
+        DrawRectangle(x + cellSize / 2 - 1, y + cellSize / 2 - 1, 2, 2, theme.wall);
     }
-    if (cell == EXIT_CELL)
+    else if (cell == KEY_CELL)
     {
-        return GOOD_COLOR;
+        drawIcon(KEY_ICON, x, y, cellSize, theme.key, theme.background, theme.key);
     }
-    if (cell == DOOR_CELL)
+    else if (cell == DOOR_CELL)
     {
-        return DOOR_COLOR;
+        drawIcon(DOOR_ICON, x, y, cellSize, theme.wallEdge, theme.wall, theme.door);
     }
-    if (cell == KEY_CELL)
+    else if (cell == EXIT_CELL)
     {
-        return KEY_COLOR;
+        drawExit(x, y, cellSize, theme.exit);
     }
-    return WALL_COLOR;
 }
 
-void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius)
+// Easy: 60 stars move slowly to the left behind the maze.
+void drawStars()
 {
-    ClearBackground(BACKGROUND_COLOR);
+    float time = (float)GetTime();
+
+    for (int i = 0; i < 60; i++)
+    {
+        // Every star has its own place and speed, calculated from i, so no array is needed.
+        float speed = 10.0f + (i % 3) * 10.0f;
+        float x = fmodf(i * 137.0f - time * speed, (float)MAZE_AREA_SIZE);
+        if (x < 0)
+        {
+            x = x + MAZE_AREA_SIZE;
+        }
+        int y = (i * 53) % MAZE_AREA_SIZE;
+        int starSize = 1 + i % 2;
+
+        DrawRectangle(MAZE_LEFT + (int)x, MAZE_TOP + y, starSize, starSize, { 255, 255, 255, 160 });
+    }
+}
+
+// Medium: a light hologram line runs from the top to the bottom of the maze.
+void drawHologramLine(Theme theme)
+{
+    float y = fmodf((float)GetTime() * 150.0f, (float)MAZE_AREA_SIZE);
+    DrawRectangle(MAZE_LEFT, MAZE_TOP + (int)y, MAZE_AREA_SIZE, 6, Fade(theme.exit, 0.2f));
+}
+
+// Hard: the whole maze blinks red like an emergency alarm.
+void drawAlarm()
+{
+    // sinf goes from -1 to 1, so blink goes from 0 to 1 about once per second.
+    float blink = (sinf((float)GetTime() * 6.0f) + 1.0f) / 2.0f;
+    DrawRectangle(MAZE_LEFT, MAZE_TOP, MAZE_AREA_SIZE, MAZE_AREA_SIZE, Fade(RED, 0.05f + 0.12f * blink));
+}
+
+// Draws the astronaut: white suit, gray helmet and a visor in the color of the exit.
+void drawAstronaut(int x, int y, int cellSize, Theme theme)
+{
+    drawIcon(PLAYER_ICON, x, y, cellSize, theme.player, { 203, 213, 225, 255 }, theme.exit);
+}
+
+void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius, int difficulty)
+{
+    Theme theme = getTheme(difficulty);
+    ClearBackground(theme.background);
     int cellSize = getCellSize(size);
 
-    // From the top row to the bottom row, every cell is drawn as its symbol.
+    // The stars are behind the maze, so they are drawn first.
+    if (difficulty == DIFFICULTY_EASY)
+    {
+        drawStars();
+    }
+
+    // From the top row to the bottom row, every cell is drawn as its icon.
     for (int row = 0; row < size; row++)
     {
         for (int col = 0; col < size; col++)
@@ -309,34 +496,55 @@ void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius
             // A cell in the fog stays dark.
             if (isVisible(playerRow, playerCol, row, col, fogRadius))
             {
-                char symbol[2] = { getCellSymbol(maze[row][col]), '\0' };
-                drawGameText(symbol, MAZE_LEFT + col * cellSize, MAZE_TOP + row * cellSize, cellSize, getCellColor(maze[row][col]));
+                int x = MAZE_LEFT + col * cellSize;
+                int y = MAZE_TOP + row * cellSize;
+                drawCell(maze[row][col], x, y, cellSize, theme);
             }
         }
     }
+
+    // The effects are drawn last, on top of the maze.
+    if (difficulty == DIFFICULTY_HARD)
+    {
+        drawAlarm();
+    }
+    else if (difficulty == DIFFICULTY_MEDIUM)
+    {
+        drawHologramLine(theme);
+    }
 }
 
-void drawPlayer(int size, int playerRow, int playerCol)
+void drawPlayer(int size, int playerRow, int playerCol, int difficulty)
 {
+    Theme theme = getTheme(difficulty);
     int cellSize = getCellSize(size);
     int x = MAZE_LEFT + playerCol * cellSize;
     int y = MAZE_TOP + playerRow * cellSize;
 
-    // Cover the symbol of the cell, then draw @ on top.
-    DrawRectangle(x, y, cellSize, cellSize, BACKGROUND_COLOR);
-    drawGameText("@", x, y, cellSize, PLAYER_COLOR);
+    // Cover the cell with a floor tile, then draw the astronaut on top.
+    DrawRectangle(x, y, cellSize - 1, cellSize - 1, theme.floor);
+    drawAstronaut(x, y, cellSize, theme);
 }
 
-void drawLegend()
+// One line of the legend or the help screen: an icon and its name.
+void drawIconLine(char cell, const char* name, int x, int y, Theme theme)
 {
-    drawGameText("Map", PANEL_LEFT, 20, TEXT_SIZE, TITLE_COLOR);
-    drawGameText("#  wall", PANEL_LEFT, 60, SMALL_TEXT_SIZE, WALL_COLOR);
-    drawGameText(".  path", PANEL_LEFT, 85, SMALL_TEXT_SIZE, PATH_COLOR);
-    drawGameText(">  exit", PANEL_LEFT, 110, SMALL_TEXT_SIZE, GOOD_COLOR);
-    drawGameText("@  you", PANEL_LEFT, 135, SMALL_TEXT_SIZE, PLAYER_COLOR);
-    drawGameText("D  door", PANEL_LEFT, 160, SMALL_TEXT_SIZE, DOOR_COLOR);
-    drawGameText("K  key", PANEL_LEFT, 185, SMALL_TEXT_SIZE, KEY_COLOR);
+    drawCell(cell, x, y, 20, theme);
+    drawGameText(name, x + 30, y, SMALL_TEXT_SIZE, TEXT_COLOR);
+}
 
+void drawLegend(int difficulty)
+{
+    Theme theme = getTheme(difficulty);
+
+    drawGameText("Map", PANEL_LEFT, 20, TEXT_SIZE, TITLE_COLOR);
+    drawIconLine(WALL_CELL, "wall", PANEL_LEFT, 60, theme);
+    drawIconLine(OPEN_CELL, "path", PANEL_LEFT, 85, theme);
+    drawIconLine(EXIT_CELL, "exit", PANEL_LEFT, 110, theme);
+    drawAstronaut(PANEL_LEFT, 135, 20, theme);
+    drawGameText("you", PANEL_LEFT + 30, 135, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawIconLine(DOOR_CELL, "door", PANEL_LEFT, 160, theme);
+    drawIconLine(KEY_CELL, "key", PANEL_LEFT, 185, theme);
     drawGameText("Keys", PANEL_LEFT, 225, TEXT_SIZE, TITLE_COLOR);
     drawGameText("Arrows or", PANEL_LEFT, 260, SMALL_TEXT_SIZE, TEXT_COLOR);
     drawGameText("W, A, S, D", PANEL_LEFT, 282, SMALL_TEXT_SIZE, TEXT_COLOR);
@@ -395,27 +603,60 @@ void drawTimer(int seconds)
     drawGameText(TextFormat("Time: %d:%02d", seconds / 60, seconds % 60), PANEL_LEFT, 600, SMALL_TEXT_SIZE, TEXT_COLOR);
 }
 
-void drawWinScreen(int moveCount, int seconds, int score, int bestScore)
+// Sparks fly out of the point (centerX, centerY) in all directions and start again.
+void drawSparks(int centerX, int centerY, Theme theme)
 {
-    ClearBackground(BACKGROUND_COLOR);
+    float time = (float)GetTime();
+    Color colors[3] = { theme.key, theme.door, theme.exit };
 
-    drawGameText("You found the exit!", 160, 160, TEXT_SIZE + 10, GOOD_COLOR);
-    drawGameText(TextFormat("Moves: %d", moveCount), 160, 240, TEXT_SIZE, TEXT_COLOR);
-    drawGameText(TextFormat("Time: %d:%02d", seconds / 60, seconds % 60), 160, 280, TEXT_SIZE, TEXT_COLOR);
-    drawGameText(TextFormat("Score: %d", score), 160, 340, TEXT_SIZE + 10, PLAYER_COLOR);
-    drawGameText(TextFormat("Best for this size and difficulty: %d", bestScore), 160, 395, SMALL_TEXT_SIZE, TEXT_COLOR);
-
-    if (score >= bestScore)
+    for (int i = 0; i < 48; i++)
     {
-        drawGameText("New best result!", 160, 425, SMALL_TEXT_SIZE, GOOD_COLOR);
+        // 48 directions around the circle: 2 * PI is a full circle in radians.
+        float angle = i * 2.0f * PI / 48.0f;
+        float distance = fmodf(time * 140.0f + i * 37.0f, 230.0f);
+        float x = centerX + cosf(angle) * distance;
+        float y = centerY + sinf(angle) * distance;
+
+        // A spark fades out on its way: at distance 230 it is invisible.
+        float alpha = 1.0f - distance / 230.0f;
+        DrawRectangle((int)x, (int)y, 5, 5, Fade(colors[i % 3], alpha));
+    }
+}
+
+void drawWinScreen(int moveCount, int seconds, int score, int bestScore, bool newBest)
+{
+    drawSpaceBackground();
+    Theme theme = getTheme(DIFFICULTY_EASY);
+
+    // The portal, the sparks and the astronaut on the right.
+    drawExit(560, 180, 240, theme.exit);
+    drawSparks(680, 300, theme);
+    drawAstronaut(632, 252, 96, theme);
+
+    drawGameText("You found the exit!", 60, 60, TEXT_SIZE + 20, GOOD_COLOR);
+
+    // The results in a half transparent panel.
+    Rectangle panel = { 50, 150, 440, 330 };
+    DrawRectangleRounded(panel, 0.1f, 8, Fade(BLACK, 0.5f));
+    DrawRectangleRoundedLinesEx(panel, 0.1f, 8, 2, Fade(TITLE_COLOR, 0.6f));
+
+    drawGameText(TextFormat("Moves: %d", moveCount), 80, 180, TEXT_SIZE, TEXT_COLOR);
+    drawGameText(TextFormat("Time: %d:%02d", seconds / 60, seconds % 60), 80, 225, TEXT_SIZE, TEXT_COLOR);
+    drawGameText(TextFormat("Score: %d", score), 80, 290, TEXT_SIZE + 20, PLAYER_COLOR);
+    drawGameText(TextFormat("Best for this size and difficulty: %d", bestScore), 80, 370, SMALL_TEXT_SIZE, TEXT_COLOR);
+
+    // "New best result!" blinks: it is shown in the first half of every second.
+    if (newBest && fmodf((float)GetTime(), 1.0f) < 0.5f)
+    {
+        drawGameText("New best result!", 80, 410, TEXT_SIZE, GOOD_COLOR);
     }
 
-    drawGameText("Q - back to the menu", 160, 600, SMALL_TEXT_SIZE, HINT_COLOR);
+    drawGameText("Q - back to the menu", 60, 620, SMALL_TEXT_SIZE, HINT_COLOR);
 }
 
 void drawTestScreen(const bool results[])
 {
-    ClearBackground(BACKGROUND_COLOR);
+    drawSpaceBackground();
     drawGameText("Self-tests", 100, 60, TEXT_SIZE + 10, TITLE_COLOR);
 
     // One line for every test: PASS or FAIL and the name of the test.
@@ -437,4 +678,29 @@ void drawTestScreen(const bool results[])
 
     drawGameText(TextFormat("%d of %d tests passed.", passedCount, TEST_COUNT), 100, 480, TEXT_SIZE, TITLE_COLOR);
     drawGameText("Q - back to the menu", 100, 620, SMALL_TEXT_SIZE, HINT_COLOR);
+}
+
+// The help screen is at the end of the file, because it uses drawIconLine and drawAstronaut.
+void drawHelpScreen()
+{
+    drawSpaceBackground();
+    Theme theme = getTheme(DIFFICULTY_EASY);
+
+    drawGameText("How to play", 100, 60, TEXT_SIZE + 10, TITLE_COLOR);
+    drawGameText("Start in the top-left corner and find the exit portal", 100, 140, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText("in the bottom-right corner.", 100, 170, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText("You cannot walk through walls.", 100, 200, SMALL_TEXT_SIZE, TEXT_COLOR);
+
+    drawGameText("Map", 100, 260, TEXT_SIZE, TITLE_COLOR);
+    drawIconLine(WALL_CELL, "wall", 100, 310, theme);
+    drawIconLine(OPEN_CELL, "path", 100, 340, theme);
+    drawIconLine(EXIT_CELL, "exit portal", 100, 370, theme);
+    drawAstronaut(100, 400, 20, theme);
+    drawGameText("you, the astronaut", 130, 400, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawIconLine(DOOR_CELL, "door: you need a key to open it, it can be a shorter way", 100, 430, theme);
+    drawIconLine(KEY_CELL, "key card: step on it to put it into the inventory", 100, 460, theme);
+
+    drawGameText("Controls", 100, 510, TEXT_SIZE, TITLE_COLOR);
+    drawGameText("Arrow keys or W, A, S, D - move", 100, 555, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText("Q - back to the menu", 100, 585, SMALL_TEXT_SIZE, TEXT_COLOR);
 }
