@@ -294,36 +294,118 @@ int getCellSize(int size)
     return MAZE_AREA_SIZE / size;
 }
 
-// Returns the symbol that is drawn for a cell. The exit is stored as E but drawn as >.
-char getCellSymbol(char cell)
+// Pixel icons: 8 rows of 8 characters. '1', '2' and '3' are three colors, '.' is an empty pixel.
+const char* const PLAYER_ICON[8] = {
+    "..2222..",
+    ".233332.",
+    ".231132.",
+    ".233332.",
+    "..2222..",
+    ".111111.",
+    "1.1111.1",
+    "..1..1.." };
+
+const char* const KEY_ICON[8] = {
+    "........",
+    ".111111.",
+    ".122221.",
+    ".121121.",
+    ".122221.",
+    ".111111.",
+    "..1..1..",
+    "........" };
+
+const char* const DOOR_ICON[8] = {
+    "11111111",
+    "12233221",
+    "12233221",
+    "12233221",
+    "12233221",
+    "12233221",
+    "12233221",
+    "11111111" };
+
+const char* const WALL_ICON[8] = {
+    "22222222",
+    "21111112",
+    "21222212",
+    "21211212",
+    "21211212",
+    "21222212",
+    "21111112",
+    "22222222" };
+
+// Draws an icon in a square of cellSize pixels. Every icon pixel is cellSize / 8 pixels wide.
+void drawIcon(const char* const icon[], int x, int y, int cellSize, Color color1, Color color2, Color color3)
 {
-    if (cell == EXIT_CELL)
+    float pixel = cellSize / 8.0f;
+
+    for (int row = 0; row < 8; row++)
     {
-        return '>';
+        for (int col = 0; col < 8; col++)
+        {
+            char mark = icon[row][col];
+            Color color = color1;
+            if (mark == '2')
+            {
+                color = color2;
+            }
+            else if (mark == '3')
+            {
+                color = color3;
+            }
+
+            if (mark != '.')
+            {
+                // + 0.5f closes the small gaps between the pixels.
+                DrawRectangleV({ x + col * pixel, y + row * pixel }, { pixel + 0.5f, pixel + 0.5f }, color);
+            }
+        }
     }
-    return cell;
 }
 
-// Returns the color of the symbol of a cell.
-Color getCellColor(char cell)
+// Draws the exit as a ring: a portal to the next level of the station.
+void drawExit(int x, int y, int cellSize, Color color)
 {
+    Vector2 center = { x + cellSize / 2.0f, y + cellSize / 2.0f };
+    DrawRing(center, cellSize * 0.25f, cellSize * 0.42f, 0.0f, 300.0f, 24, color);
+}
+
+// Draws one cell of the maze: a floor tile and the icon of what is in the cell.
+void drawCell(char cell, int x, int y, int cellSize, Theme theme)
+{
+    if (cell == WALL_CELL)
+    {
+        drawIcon(WALL_ICON, x, y, cellSize, theme.wall, theme.wallEdge, theme.wall);
+        return;
+    }
+
+    // Every other cell has a floor tile. The 1 pixel gap shows the grid.
+    DrawRectangle(x, y, cellSize - 1, cellSize - 1, theme.floor);
+
     if (cell == OPEN_CELL)
     {
-        return PATH_COLOR;
+        // A small light in the middle of the floor.
+        DrawRectangle(x + cellSize / 2 - 1, y + cellSize / 2 - 1, 2, 2, theme.wall);
     }
-    if (cell == EXIT_CELL)
+    else if (cell == KEY_CELL)
     {
-        return GOOD_COLOR;
+        drawIcon(KEY_ICON, x, y, cellSize, theme.key, theme.background, theme.key);
     }
-    if (cell == DOOR_CELL)
+    else if (cell == DOOR_CELL)
     {
-        return DOOR_COLOR;
+        drawIcon(DOOR_ICON, x, y, cellSize, theme.wallEdge, theme.wall, theme.door);
     }
-    if (cell == KEY_CELL)
+    else if (cell == EXIT_CELL)
     {
-        return KEY_COLOR;
+        drawExit(x, y, cellSize, theme.exit);
     }
-    return WALL_COLOR;
+}
+
+// Draws the astronaut: white suit, gray helmet and a visor in the color of the exit.
+void drawAstronaut(int x, int y, int cellSize, Theme theme)
+{
+    drawIcon(PLAYER_ICON, x, y, cellSize, theme.player, { 203, 213, 225, 255 }, theme.exit);
 }
 
 void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius, int difficulty)
@@ -332,7 +414,7 @@ void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius
     ClearBackground(theme.background);
     int cellSize = getCellSize(size);
 
-    // From the top row to the bottom row, every cell is drawn as its symbol.
+    // From the top row to the bottom row, every cell is drawn as its icon.
     for (int row = 0; row < size; row++)
     {
         for (int col = 0; col < size; col++)
@@ -342,20 +424,7 @@ void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius
             {
                 int x = MAZE_LEFT + col * cellSize;
                 int y = MAZE_TOP + row * cellSize;
-
-                // A wall panel with a light top edge, or a floor tile. The 1 pixel gap shows the grid.
-                if (maze[row][col] == WALL_CELL)
-                {
-                    DrawRectangle(x, y, cellSize - 1, cellSize - 1, theme.wall);
-                    DrawRectangle(x, y, cellSize - 1, cellSize / 6, theme.wallEdge);
-                }
-                else
-                {
-                    DrawRectangle(x, y, cellSize - 1, cellSize - 1, theme.floor);
-                }
-
-                char symbol[2] = { getCellSymbol(maze[row][col]), '\0' };
-                drawGameText(symbol, MAZE_LEFT + col * cellSize, MAZE_TOP + row * cellSize, cellSize, getCellColor(maze[row][col]));
+                drawCell(maze[row][col], x, y, cellSize, theme);
             }
         }
     }
@@ -368,9 +437,9 @@ void drawPlayer(int size, int playerRow, int playerCol, int difficulty)
     int x = MAZE_LEFT + playerCol * cellSize;
     int y = MAZE_TOP + playerRow * cellSize;
 
-    // Cover the symbol of the cell with a floor tile, then draw @ on top.
+    // Cover the cell with a floor tile, then draw the astronaut on top.
     DrawRectangle(x, y, cellSize - 1, cellSize - 1, theme.floor);
-    drawGameText("@", x, y, cellSize, theme.player);
+    drawAstronaut(x, y, cellSize, theme);
 }
 
 void drawLegend()
