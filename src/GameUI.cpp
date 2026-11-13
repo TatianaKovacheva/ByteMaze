@@ -23,7 +23,6 @@ const int MAZE_AREA_SIZE = 650;
 const int PANEL_LEFT = 690;
 
 // Colors of the ByteMaze style: a dark background with bright symbols.
-const Color BACKGROUND_COLOR = { 18, 22, 30, 255 };
 const Color TITLE_COLOR = { 120, 200, 255, 255 };
 const Color TEXT_COLOR = { 220, 225, 235, 255 };
 const Color HINT_COLOR = { 130, 140, 155, 255 };
@@ -604,22 +603,55 @@ void drawTimer(int seconds)
     drawGameText(TextFormat("Time: %d:%02d", seconds / 60, seconds % 60), PANEL_LEFT, 600, SMALL_TEXT_SIZE, TEXT_COLOR);
 }
 
+// Sparks fly out of the point (centerX, centerY) in all directions and start again.
+void drawSparks(int centerX, int centerY, Theme theme)
+{
+    float time = (float)GetTime();
+    Color colors[3] = { theme.key, theme.door, theme.exit };
+
+    for (int i = 0; i < 48; i++)
+    {
+        // 48 directions around the circle: 2 * PI is a full circle in radians.
+        float angle = i * 2.0f * PI / 48.0f;
+        float distance = fmodf(time * 140.0f + i * 37.0f, 230.0f);
+        float x = centerX + cosf(angle) * distance;
+        float y = centerY + sinf(angle) * distance;
+
+        // A spark fades out on its way: at distance 230 it is invisible.
+        float alpha = 1.0f - distance / 230.0f;
+        DrawRectangle((int)x, (int)y, 5, 5, Fade(colors[i % 3], alpha));
+    }
+}
+
 void drawWinScreen(int moveCount, int seconds, int score, int bestScore)
 {
-    ClearBackground(BACKGROUND_COLOR);
+    drawSpaceBackground();
+    Theme theme = getTheme(DIFFICULTY_EASY);
 
-    drawGameText("You found the exit!", 160, 160, TEXT_SIZE + 10, GOOD_COLOR);
-    drawGameText(TextFormat("Moves: %d", moveCount), 160, 240, TEXT_SIZE, TEXT_COLOR);
-    drawGameText(TextFormat("Time: %d:%02d", seconds / 60, seconds % 60), 160, 280, TEXT_SIZE, TEXT_COLOR);
-    drawGameText(TextFormat("Score: %d", score), 160, 340, TEXT_SIZE + 10, PLAYER_COLOR);
-    drawGameText(TextFormat("Best for this size and difficulty: %d", bestScore), 160, 395, SMALL_TEXT_SIZE, TEXT_COLOR);
+    // The portal, the sparks and the astronaut on the right.
+    drawExit(560, 180, 240, theme.exit);
+    drawSparks(680, 300, theme);
+    drawAstronaut(632, 252, 96, theme);
 
-    if (score >= bestScore)
+    drawGameText("You found the exit!", 60, 60, TEXT_SIZE + 20, GOOD_COLOR);
+
+    // The results in a half transparent panel.
+    Rectangle panel = { 50, 150, 440, 330 };
+    DrawRectangleRounded(panel, 0.1f, 8, Fade(BLACK, 0.5f));
+    DrawRectangleRoundedLinesEx(panel, 0.1f, 8, 2, Fade(TITLE_COLOR, 0.6f));
+
+    drawGameText(TextFormat("Moves: %d", moveCount), 80, 180, TEXT_SIZE, TEXT_COLOR);
+    drawGameText(TextFormat("Time: %d:%02d", seconds / 60, seconds % 60), 80, 225, TEXT_SIZE, TEXT_COLOR);
+    drawGameText(TextFormat("Score: %d", score), 80, 290, TEXT_SIZE + 20, PLAYER_COLOR);
+    drawGameText(TextFormat("Best for this size and difficulty: %d", bestScore), 80, 370, SMALL_TEXT_SIZE, TEXT_COLOR);
+
+    // "New best result!" blinks: it is shown in the first half of every second.
+    if (score >= bestScore && fmodf((float)GetTime(), 1.0f) < 0.5f)
     {
-        drawGameText("New best result!", 160, 425, SMALL_TEXT_SIZE, GOOD_COLOR);
+        drawGameText("New best result!", 80, 410, TEXT_SIZE, GOOD_COLOR);
     }
 
-    drawGameText("Q - back to the menu", 160, 600, SMALL_TEXT_SIZE, HINT_COLOR);
+    drawGameText("Q - back to the menu", 60, 620, SMALL_TEXT_SIZE, HINT_COLOR);
 }
 
 void drawTestScreen(const bool results[])
