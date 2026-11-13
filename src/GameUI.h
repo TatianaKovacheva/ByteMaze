@@ -64,8 +64,8 @@ void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius
 // Draws the player at its position.
 void drawPlayer(int size, int playerRow, int playerCol, int difficulty);
 
-// Explains the symbols used on the map.
-void drawLegend();
+// Explains the icons used on the map, in the colors of the difficulty level.
+void drawLegend(int difficulty);
 
 // Draws the player's row, column and number of moves.
 void drawPlayerInfo(int playerRow, int playerCol, int moveCount);

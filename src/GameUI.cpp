@@ -29,10 +29,7 @@ const Color TEXT_COLOR = { 220, 225, 235, 255 };
 const Color HINT_COLOR = { 130, 140, 155, 255 };
 const Color GOOD_COLOR = { 110, 220, 120, 255 };
 const Color BAD_COLOR = { 240, 90, 90, 255 };
-const Color WALL_COLOR = { 70, 140, 160, 255 };
-const Color PATH_COLOR = { 90, 100, 115, 255 };
 const Color PLAYER_COLOR = { 255, 210, 80, 255 };
-const Color DOOR_COLOR = { 240, 140, 70, 255 };
 const Color KEY_COLOR = { 250, 230, 120, 255 };
 
 // The colors of the space station. Every difficulty level has its own look.
@@ -118,28 +115,6 @@ int readMenuChoice()
 
     // No menu key was pressed in this frame.
     return MENU_NONE;
-}
-
-void drawHelpScreen()
-{
-    ClearBackground(BACKGROUND_COLOR);
-
-    drawGameText("How to play", 100, 60, TEXT_SIZE + 10, TITLE_COLOR);
-    drawGameText("Start in the top-left corner and find the exit >", 100, 140, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("in the bottom-right corner.", 100, 170, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("You cannot walk through walls.", 100, 200, SMALL_TEXT_SIZE, TEXT_COLOR);
-
-    drawGameText("Map symbols", 100, 260, TEXT_SIZE, TITLE_COLOR);
-    drawGameText("#  wall", 100, 310, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText(".  path", 100, 340, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText(">  exit", 100, 370, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("@  player", 100, 400, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("D  door: you need a key to open it, it can be a shorter way", 100, 430, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("K  key: step on it to put it into the inventory", 100, 460, SMALL_TEXT_SIZE, TEXT_COLOR);
-
-    drawGameText("Controls", 100, 510, TEXT_SIZE, TITLE_COLOR);
-    drawGameText("Arrow keys or W, A, S, D - move", 100, 555, SMALL_TEXT_SIZE, TEXT_COLOR);
-    drawGameText("Q - back to the menu", 100, 585, SMALL_TEXT_SIZE, TEXT_COLOR);
 }
 
 bool readBackKey()
@@ -499,16 +474,25 @@ void drawPlayer(int size, int playerRow, int playerCol, int difficulty)
     drawAstronaut(x, y, cellSize, theme);
 }
 
-void drawLegend()
+// One line of the legend or the help screen: an icon and its name.
+void drawIconLine(char cell, const char* name, int x, int y, Theme theme)
 {
-    drawGameText("Map", PANEL_LEFT, 20, TEXT_SIZE, TITLE_COLOR);
-    drawGameText("#  wall", PANEL_LEFT, 60, SMALL_TEXT_SIZE, WALL_COLOR);
-    drawGameText(".  path", PANEL_LEFT, 85, SMALL_TEXT_SIZE, PATH_COLOR);
-    drawGameText(">  exit", PANEL_LEFT, 110, SMALL_TEXT_SIZE, GOOD_COLOR);
-    drawGameText("@  you", PANEL_LEFT, 135, SMALL_TEXT_SIZE, PLAYER_COLOR);
-    drawGameText("D  door", PANEL_LEFT, 160, SMALL_TEXT_SIZE, DOOR_COLOR);
-    drawGameText("K  key", PANEL_LEFT, 185, SMALL_TEXT_SIZE, KEY_COLOR);
+    drawCell(cell, x, y, 20, theme);
+    drawGameText(name, x + 30, y, SMALL_TEXT_SIZE, TEXT_COLOR);
+}
 
+void drawLegend(int difficulty)
+{
+    Theme theme = getTheme(difficulty);
+
+    drawGameText("Map", PANEL_LEFT, 20, TEXT_SIZE, TITLE_COLOR);
+    drawIconLine(WALL_CELL, "wall", PANEL_LEFT, 60, theme);
+    drawIconLine(OPEN_CELL, "path", PANEL_LEFT, 85, theme);
+    drawIconLine(EXIT_CELL, "exit", PANEL_LEFT, 110, theme);
+    drawAstronaut(PANEL_LEFT, 135, 20, theme);
+    drawGameText("you", PANEL_LEFT + 30, 135, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawIconLine(DOOR_CELL, "door", PANEL_LEFT, 160, theme);
+    drawIconLine(KEY_CELL, "key", PANEL_LEFT, 185, theme);
     drawGameText("Keys", PANEL_LEFT, 225, TEXT_SIZE, TITLE_COLOR);
     drawGameText("Arrows or", PANEL_LEFT, 260, SMALL_TEXT_SIZE, TEXT_COLOR);
     drawGameText("W, A, S, D", PANEL_LEFT, 282, SMALL_TEXT_SIZE, TEXT_COLOR);
@@ -609,4 +593,29 @@ void drawTestScreen(const bool results[])
 
     drawGameText(TextFormat("%d of %d tests passed.", passedCount, TEST_COUNT), 100, 480, TEXT_SIZE, TITLE_COLOR);
     drawGameText("Q - back to the menu", 100, 620, SMALL_TEXT_SIZE, HINT_COLOR);
+}
+
+// The help screen is at the end of the file, because it uses drawIconLine and drawAstronaut.
+void drawHelpScreen()
+{
+    ClearBackground(BACKGROUND_COLOR);
+    Theme theme = getTheme(DIFFICULTY_EASY);
+
+    drawGameText("How to play", 100, 60, TEXT_SIZE + 10, TITLE_COLOR);
+    drawGameText("Start in the top-left corner and find the exit portal", 100, 140, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText("in the bottom-right corner.", 100, 170, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText("You cannot walk through walls.", 100, 200, SMALL_TEXT_SIZE, TEXT_COLOR);
+
+    drawGameText("Map", 100, 260, TEXT_SIZE, TITLE_COLOR);
+    drawIconLine(WALL_CELL, "wall", 100, 310, theme);
+    drawIconLine(OPEN_CELL, "path", 100, 340, theme);
+    drawIconLine(EXIT_CELL, "exit portal", 100, 370, theme);
+    drawAstronaut(100, 400, 20, theme);
+    drawGameText("you, the astronaut", 130, 400, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawIconLine(DOOR_CELL, "door: you need a key to open it, it can be a shorter way", 100, 430, theme);
+    drawIconLine(KEY_CELL, "key card: step on it to put it into the inventory", 100, 460, theme);
+
+    drawGameText("Controls", 100, 510, TEXT_SIZE, TITLE_COLOR);
+    drawGameText("Arrow keys or W, A, S, D - move", 100, 555, SMALL_TEXT_SIZE, TEXT_COLOR);
+    drawGameText("Q - back to the menu", 100, 585, SMALL_TEXT_SIZE, TEXT_COLOR);
 }

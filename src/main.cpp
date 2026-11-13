@@ -214,7 +214,7 @@ int main()
         case SCREEN_GAME:
             drawMaze(maze, mazeSize, playerRow, playerCol, getFogRadius(difficulty), difficulty);
             drawPlayer(mazeSize, playerRow, playerCol, difficulty);
-            drawLegend();
+            drawLegend(difficulty);
             drawPlayerInfo(playerRow, playerCol, moveCount);
             drawCellInfo(maze, mazeSize, lastTargetRow, lastTargetCol);
             drawInventory(keyCount);
