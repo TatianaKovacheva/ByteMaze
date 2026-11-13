@@ -37,6 +37,8 @@ const char* getTestName(int index)
         return "Fog hides the far cells";
     case 11:
         return "Score formula and multiplier";
+    case 12:
+        return "Keys can be reached before the doors";
     default:
         return "Unknown test";
     }
@@ -70,6 +72,8 @@ bool runTest(int index)
         return testFogVisibility();
     case 11:
         return testScoreCalculation();
+    case 12:
+        return testKeysBeforeDoors();
     default:
         return false;
     }
@@ -201,10 +205,12 @@ bool testExitReached()
 
 // Recursive flood fill: visits every open cell that can be reached from (row, col).
 // Returns true as soon as the exit is reached.
+// Doors count as open: there is a key for every door, and testKeysBeforeDoors checks
+// that all keys can be reached before the doors.
 bool canReachExit(char** maze, bool** visited, int size, int row, int col)
 {
     // Stop at walls, outside the maze and at cells that were already visited.
-    if (!canMoveTo(maze, size, row, col) || visited[row][col])
+    if (!isInside(size, row, col) || maze[row][col] == WALL_CELL || visited[row][col])
     {
         return false;
     }
@@ -334,4 +340,69 @@ bool testScoreCalculation()
     bool minimumScore = calculateScore(1000, 1000, DIFFICULTY_MEDIUM) == 200;
 
     return easyScore && hardScore && minimumScore;
+}
+
+bool testKeysBeforeDoors()
+{
+    for (int difficulty = DIFFICULTY_EASY; difficulty <= DIFFICULTY_HARD; difficulty++)
+    {
+        // Sizes 10, 15, 20 ... 50, three mazes of every size.
+        for (int size = MIN_MAZE_SIZE; size <= MAX_MAZE_SIZE; size += 5)
+        {
+            for (int round = 0; round < 3; round++)
+            {
+                char** maze = createMaze(size);
+                generateMaze(maze, size, difficulty);
+
+                bool** reached = new bool* [size];
+                for (int row = 0; row < size; row++)
+                {
+                    reached[row] = new bool[size];
+                    for (int col = 0; col < size; col++)
+                    {
+                        reached[row][col] = false;
+                    }
+                }
+                markReachable(maze, size, 0, 0, reached);
+
+                // Count the doors, the keys and the keys that the flood fill reached.
+                int doors = 0;
+                int keys = 0;
+                int keysReached = 0;
+                for (int row = 0; row < size; row++)
+                {
+                    for (int col = 0; col < size; col++)
+                    {
+                        if (maze[row][col] == DOOR_CELL)
+                        {
+                            doors++;
+                        }
+                        if (maze[row][col] == KEY_CELL)
+                        {
+                            keys++;
+                            if (reached[row][col])
+                            {
+                                keysReached++;
+                            }
+                        }
+                    }
+                }
+
+                for (int row = 0; row < size; row++)
+                {
+                    delete[] reached[row];
+                }
+                delete[] reached;
+                destroyMaze(maze, size);
+
+                bool countsRight = doors == getDoorCount(difficulty) && keys == doors;
+                if (!countsRight || keysReached != keys)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
 }

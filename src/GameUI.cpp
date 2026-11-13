@@ -676,7 +676,7 @@ void drawTestScreen(const bool results[])
         drawGameText(getTestName(i), 180, y, SMALL_TEXT_SIZE, TEXT_COLOR);
     }
 
-    drawGameText(TextFormat("%d of %d tests passed.", passedCount, TEST_COUNT), 100, 480, TEXT_SIZE, TITLE_COLOR);
+    drawGameText(TextFormat("%d of %d tests passed.", passedCount, TEST_COUNT), 100, 520, TEXT_SIZE, TITLE_COLOR);
     drawGameText("Q - back to the menu", 100, 620, SMALL_TEXT_SIZE, HINT_COLOR);
 }
 
