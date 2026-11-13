@@ -50,6 +50,9 @@ int main()
     int seconds = 0;
     int score = 0;
 
+    // true only when the score of the last game is higher than the old best score.
+    bool newBest = false;
+
     // The best score for every size and difficulty while the program runs.
     // {} sets every element to 0.
     int bestScores[MAX_MAZE_SIZE + 1][DIFFICULTY_HARD + 1] = {};
@@ -171,7 +174,9 @@ int main()
                 if (isAtExit(mazeSize, playerRow, playerCol))
                 {
                     score = calculateScore(moveCount, seconds, difficulty);
-                    if (score > bestScores[mazeSize][difficulty])
+                    // Compare before the best score is changed, otherwise score and best are always equal.
+                    newBest = score > bestScores[mazeSize][difficulty];
+                    if (newBest)
                     {
                         bestScores[mazeSize][difficulty] = score;
                     }
@@ -221,7 +226,7 @@ int main()
             drawTimer(seconds);
             break;
         case SCREEN_WIN:
-            drawWinScreen(moveCount, seconds, score, bestScores[mazeSize][difficulty]);
+            drawWinScreen(moveCount, seconds, score, bestScores[mazeSize][difficulty], newBest);
             break;
         case SCREEN_TESTS:
             drawTestScreen(testResults);

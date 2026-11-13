@@ -623,7 +623,7 @@ void drawSparks(int centerX, int centerY, Theme theme)
     }
 }
 
-void drawWinScreen(int moveCount, int seconds, int score, int bestScore)
+void drawWinScreen(int moveCount, int seconds, int score, int bestScore, bool newBest)
 {
     drawSpaceBackground();
     Theme theme = getTheme(DIFFICULTY_EASY);
@@ -646,7 +646,7 @@ void drawWinScreen(int moveCount, int seconds, int score, int bestScore)
     drawGameText(TextFormat("Best for this size and difficulty: %d", bestScore), 80, 370, SMALL_TEXT_SIZE, TEXT_COLOR);
 
     // "New best result!" blinks: it is shown in the first half of every second.
-    if (score >= bestScore && fmodf((float)GetTime(), 1.0f) < 0.5f)
+    if (newBest && fmodf((float)GetTime(), 1.0f) < 0.5f)
     {
         drawGameText("New best result!", 80, 410, TEXT_SIZE, GOOD_COLOR);
     }

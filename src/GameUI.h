@@ -80,7 +80,8 @@ void drawCellInfo(char** maze, int size, int row, int col);
 void drawTimer(int seconds);
 
 // Congratulates the player and shows the moves, the time, the score and the best score.
-void drawWinScreen(int moveCount, int seconds, int score, int bestScore);
+// newBest is true when the score is higher than the old best score.
+void drawWinScreen(int moveCount, int seconds, int score, int bestScore, bool newBest);
 
 // Draws PASS or FAIL for every test. results has TEST_COUNT elements.
 void drawTestScreen(const bool results[]);
