@@ -5,7 +5,7 @@
 #pragma once
 
 // Number of tests in the list. GameUI draws one line for each of them.
-const int TEST_COUNT = 12;
+const int TEST_COUNT = 13;
 
 // Returns the name of the test with this number, from 0 to TEST_COUNT - 1.
 const char* getTestName(int index);
@@ -48,3 +48,6 @@ bool testFogVisibility();
 
 // Checks the score formula, the minimum score and the difficulty multiplier.
 bool testScoreCalculation();
+
+// Checks the number of doors and keys and that every key can be reached without a door.
+bool testKeysBeforeDoors();

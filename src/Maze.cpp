@@ -154,9 +154,28 @@ void openRandomCells(char** maze, int size, int openChance)
     }
 }
 
-// Puts count keys on random open cells, but not on the start or the exit.
-// It is called when only the path is open, so every key can be reached without a door.
-void placeKeys(char** maze, int size, int count)
+void markReachable(char** maze, int size, int row, int col, bool** reached)
+{
+    // Stop at walls, closed doors, the edge of the maze and cells that are already marked.
+    if (!canMoveTo(maze, size, row, col) || reached[row][col])
+    {
+        return;
+    }
+
+    reached[row][col] = true;
+
+    // The function calls itself for the four neighbours.
+    markReachable(maze, size, row - 1, col, reached);
+    markReachable(maze, size, row + 1, col, reached);
+    markReachable(maze, size, row, col - 1, reached);
+    markReachable(maze, size, row, col + 1, reached);
+}
+
+// Puts count doors on the carved path. It is called when only the path is open,
+// so every door blocks the shortest way to the exit.
+// row + col is the number of steps from the start. Every door is more than count steps away,
+// so there is room for all the keys before the first door.
+void placeDoors(char** maze, int size, int count)
 {
     int placed = 0;
     int attempts = 0;
@@ -166,44 +185,57 @@ void placeKeys(char** maze, int size, int count)
     {
         int row = rand() % size;
         int col = rand() % size;
-        bool isStart = row == 0 && col == 0;
+        bool farFromStart = row + col > count;
         bool isExit = row == size - 1 && col == size - 1;
 
-        if (maze[row][col] == OPEN_CELL && !isStart && !isExit)
+        if (maze[row][col] == OPEN_CELL && farFromStart && !isExit)
         {
-            maze[row][col] = KEY_CELL;
+            maze[row][col] = DOOR_CELL;
             placed++;
         }
         attempts++;
     }
 }
 
-// Puts count doors in walls that are between two open cells in a straight line.
-// Such a door connects two corridors, so it can make the way to the exit shorter.
-void placeDoors(char** maze, int size, int count)
+// Puts count keys on open cells that can be reached from the start without a door.
+// There is one key for every door, so the player can always open all doors.
+void placeKeys(char** maze, int size, int count)
 {
+    // reached[row][col] becomes true for every cell the flood fill reaches.
+    bool** reached = new bool* [size];
+    for (int row = 0; row < size; row++)
+    {
+        reached[row] = new bool[size];
+        for (int col = 0; col < size; col++)
+        {
+            reached[row][col] = false;
+        }
+    }
+    markReachable(maze, size, 0, 0, reached);
+
     int placed = 0;
     int attempts = 0;
-
     while (placed < count && attempts < size * size * 10)
     {
-        // Not on the edge, so all four neighbours exist.
-        int row = 1 + rand() % (size - 2);
-        int col = 1 + rand() % (size - 2);
+        int row = rand() % size;
+        int col = rand() % size;
+        bool isStart = row == 0 && col == 0;
+        bool isExit = row == size - 1 && col == size - 1;
 
-        if (maze[row][col] == WALL_CELL)
+        if (reached[row][col] && maze[row][col] == OPEN_CELL && !isStart && !isExit)
         {
-            bool betweenLeftAndRight = maze[row][col - 1] != WALL_CELL && maze[row][col + 1] != WALL_CELL;
-            bool betweenUpAndDown = maze[row - 1][col] != WALL_CELL && maze[row + 1][col] != WALL_CELL;
-
-            if (betweenLeftAndRight || betweenUpAndDown)
-            {
-                maze[row][col] = DOOR_CELL;
-                placed++;
-            }
+            maze[row][col] = KEY_CELL;
+            placed++;
         }
         attempts++;
     }
+
+    // Release the memory of the map, first every row, then the array of rows.
+    for (int row = 0; row < size; row++)
+    {
+        delete[] reached[row];
+    }
+    delete[] reached;
 }
 
 void generateMaze(char** maze, int size, int difficulty)
@@ -217,10 +249,11 @@ void generateMaze(char** maze, int size, int difficulty)
         }
     }
 
+    // The order matters: doors on the path first, then the other open cells, then the keys.
     carvePath(maze, size);
-    placeKeys(maze, size, getDoorCount(difficulty));
-    openRandomCells(maze, size, getOpenCellChance(difficulty));
     placeDoors(maze, size, getDoorCount(difficulty));
+    openRandomCells(maze, size, getOpenCellChance(difficulty));
+    placeKeys(maze, size, getDoorCount(difficulty));
 
     // The exit is always in the bottom-right corner.
     maze[size - 1][size - 1] = EXIT_CELL;

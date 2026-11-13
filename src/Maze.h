@@ -66,6 +66,10 @@ void getTargetPosition(int row, int col, int direction, int& targetRow, int& tar
 // Returns true if the player moved, false if a wall or the edge blocked the move.
 bool movePlayer(char** maze, int size, int& playerRow, int& playerCol, int direction);
 
+// Recursive flood fill: sets reached[row][col] to true for every cell that can be reached
+// from (row, col) without walking through a wall or a closed door.
+void markReachable(char** maze, int size, int row, int col, bool** reached);
+
 // Like movePlayer, but a key on the new cell goes into keyCount
 // and a closed door opens if keyCount is more than 0.
 bool movePlayerWithKeys(char** maze, int size, int& playerRow, int& playerCol, int direction, int& keyCount);
