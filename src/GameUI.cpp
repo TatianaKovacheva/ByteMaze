@@ -7,6 +7,8 @@
 #include "Tests.h"
 #include "raylib.h"
 
+#include <cmath>
+
 // Text sizes in pixels.
 const int TITLE_SIZE = 60;
 const int TEXT_SIZE = 30;
@@ -52,7 +54,7 @@ Theme getTheme(int difficulty)
     switch (difficulty)
     {
     case DIFFICULTY_EASY:
-        return { { 5, 7, 26, 255 },{ 17, 24, 58, 255 },{ 59, 74, 112, 255 },{ 124, 141, 181, 255 },
+        return { { 5, 7, 26, 255 },{ 17, 24, 58, 200 },{ 59, 74, 112, 255 },{ 124, 141, 181, 255 },
             { 224, 231, 255, 255 },{ 163, 230, 53, 255 },{ 244, 114, 182, 255 },{ 56, 189, 248, 255 } };
     case DIFFICULTY_HARD:
         return { { 18, 5, 7, 255 },{ 36, 16, 15, 255 },{ 74, 58, 58, 255 },{ 154, 139, 139, 255 },
@@ -368,7 +370,10 @@ void drawIcon(const char* const icon[], int x, int y, int cellSize, Color color1
 void drawExit(int x, int y, int cellSize, Color color)
 {
     Vector2 center = { x + cellSize / 2.0f, y + cellSize / 2.0f };
-    DrawRing(center, cellSize * 0.25f, cellSize * 0.42f, 0.0f, 300.0f, 24, color);
+
+    // GetTime grows all the time, so the start angle grows and the ring turns: 120 degrees per second.
+    float angle = (float)GetTime() * 120.0f;
+    DrawRing(center, cellSize * 0.25f, cellSize * 0.42f, angle, angle + 300.0f, 24, color);
 }
 
 // Draws one cell of the maze: a floor tile and the icon of what is in the cell.
@@ -402,6 +407,42 @@ void drawCell(char cell, int x, int y, int cellSize, Theme theme)
     }
 }
 
+// Easy: 60 stars move slowly to the left behind the maze.
+void drawStars()
+{
+    float time = (float)GetTime();
+
+    for (int i = 0; i < 60; i++)
+    {
+        // Every star has its own place and speed, calculated from i, so no array is needed.
+        float speed = 10.0f + (i % 3) * 10.0f;
+        float x = fmodf(i * 137.0f - time * speed, (float)MAZE_AREA_SIZE);
+        if (x < 0)
+        {
+            x = x + MAZE_AREA_SIZE;
+        }
+        int y = (i * 53) % MAZE_AREA_SIZE;
+        int starSize = 1 + i % 2;
+
+        DrawRectangle(MAZE_LEFT + (int)x, MAZE_TOP + y, starSize, starSize, { 255, 255, 255, 160 });
+    }
+}
+
+// Medium: a light hologram line runs from the top to the bottom of the maze.
+void drawHologramLine(Theme theme)
+{
+    float y = fmodf((float)GetTime() * 150.0f, (float)MAZE_AREA_SIZE);
+    DrawRectangle(MAZE_LEFT, MAZE_TOP + (int)y, MAZE_AREA_SIZE, 6, Fade(theme.exit, 0.2f));
+}
+
+// Hard: the whole maze blinks red like an emergency alarm.
+void drawAlarm()
+{
+    // sinf goes from -1 to 1, so blink goes from 0 to 1 about once per second.
+    float blink = (sinf((float)GetTime() * 6.0f) + 1.0f) / 2.0f;
+    DrawRectangle(MAZE_LEFT, MAZE_TOP, MAZE_AREA_SIZE, MAZE_AREA_SIZE, Fade(RED, 0.05f + 0.12f * blink));
+}
+
 // Draws the astronaut: white suit, gray helmet and a visor in the color of the exit.
 void drawAstronaut(int x, int y, int cellSize, Theme theme)
 {
@@ -413,6 +454,12 @@ void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius
     Theme theme = getTheme(difficulty);
     ClearBackground(theme.background);
     int cellSize = getCellSize(size);
+
+    // The stars are behind the maze, so they are drawn first.
+    if (difficulty == DIFFICULTY_EASY)
+    {
+        drawStars();
+    }
 
     // From the top row to the bottom row, every cell is drawn as its icon.
     for (int row = 0; row < size; row++)
@@ -427,6 +474,16 @@ void drawMaze(char** maze, int size, int playerRow, int playerCol, int fogRadius
                 drawCell(maze[row][col], x, y, cellSize, theme);
             }
         }
+    }
+
+    // The effects are drawn last, on top of the maze.
+    if (difficulty == DIFFICULTY_HARD)
+    {
+        drawAlarm();
+    }
+    else if (difficulty == DIFFICULTY_MEDIUM)
+    {
+        drawHologramLine(theme);
     }
 }
 
