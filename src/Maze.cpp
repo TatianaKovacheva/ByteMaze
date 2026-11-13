@@ -154,6 +154,23 @@ void openRandomCells(char** maze, int size, int openChance)
     }
 }
 
+void markReachable(char** maze, int size, int row, int col, bool** reached)
+{
+    // Stop at walls, closed doors, the edge of the maze and cells that are already marked.
+    if (!canMoveTo(maze, size, row, col) || reached[row][col])
+    {
+        return;
+    }
+
+    reached[row][col] = true;
+
+    // The function calls itself for the four neighbours.
+    markReachable(maze, size, row - 1, col, reached);
+    markReachable(maze, size, row + 1, col, reached);
+    markReachable(maze, size, row, col - 1, reached);
+    markReachable(maze, size, row, col + 1, reached);
+}
+
 // Puts count keys on random open cells, but not on the start or the exit.
 // It is called when only the path is open, so every key can be reached without a door.
 void placeKeys(char** maze, int size, int count)
