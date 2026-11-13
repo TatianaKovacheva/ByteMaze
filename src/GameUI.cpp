@@ -82,6 +82,36 @@ void drawGameText(const char* text, int x, int y, int size, Color color)
     DrawTextEx(gameFont, text, { (float)x, (float)y }, (float)size, 1.0f, color);
 }
 
+// Background of the screens outside the maze: a dark sky, moving stars and a planet with a ring.
+void drawSpaceBackground()
+{
+    ClearBackground({ 5, 7, 20, 255 });
+    float time = (float)GetTime();
+
+    // 90 stars in three layers: the far ones are small and slow, the near ones big and fast.
+    for (int i = 0; i < 90; i++)
+    {
+        int layer = i % 3;
+        float speed = 8.0f + layer * 14.0f;
+        float x = fmodf(i * 211.0f - time * speed, (float)WINDOW_WIDTH);
+        if (x < 0)
+        {
+            x = x + WINDOW_WIDTH;
+        }
+        int y = (i * 97) % WINDOW_HEIGHT;
+
+        // Every star twinkles: its brightness follows a sine wave with its own start.
+        float twinkle = (sinf(time * 2.0f + i) + 1.0f) / 2.0f;
+        unsigned char light = (unsigned char)(90 + 120 * twinkle);
+        DrawRectangle((int)x, y, 1 + layer, 1 + layer, { light, light, 255, 255 });
+    }
+
+    // The planet: a blue circle, a darker shadow on one side and a ring around it.
+    DrawCircle(790, 600, 90, { 40, 70, 160, 255 });
+    DrawCircle(808, 618, 70, { 25, 40, 100, 255 });
+    DrawEllipseLinesEx({ 790, 600 }, 150, 28, 4, { 120, 200, 255, 180 });
+}
+
 void drawMenuScreen()
 {
     ClearBackground(BACKGROUND_COLOR);
@@ -147,7 +177,7 @@ bool readSizeInput(int& typedSize)
 
 void drawSizeScreen(int typedSize, bool showError)
 {
-    ClearBackground(BACKGROUND_COLOR);
+    drawSpaceBackground();
 
     drawGameText("Choose the maze size", 160, 120, TEXT_SIZE + 10, TITLE_COLOR);
     drawGameText(TextFormat("Type a number from %d to %d and press Enter.", MIN_MAZE_SIZE, MAX_MAZE_SIZE),
@@ -209,7 +239,7 @@ void drawDifficultyLine(int key, int difficulty, int y)
 
 void drawDifficultyScreen()
 {
-    ClearBackground(BACKGROUND_COLOR);
+    drawSpaceBackground();
 
     drawGameText("Choose the difficulty", 160, 100, TEXT_SIZE + 10, TITLE_COLOR);
     drawDifficultyLine(1, DIFFICULTY_EASY, 200);
@@ -571,7 +601,7 @@ void drawWinScreen(int moveCount, int seconds, int score, int bestScore)
 
 void drawTestScreen(const bool results[])
 {
-    ClearBackground(BACKGROUND_COLOR);
+    drawSpaceBackground();
     drawGameText("Self-tests", 100, 60, TEXT_SIZE + 10, TITLE_COLOR);
 
     // One line for every test: PASS or FAIL and the name of the test.
@@ -598,7 +628,7 @@ void drawTestScreen(const bool results[])
 // The help screen is at the end of the file, because it uses drawIconLine and drawAstronaut.
 void drawHelpScreen()
 {
-    ClearBackground(BACKGROUND_COLOR);
+    drawSpaceBackground();
     Theme theme = getTheme(DIFFICULTY_EASY);
 
     drawGameText("How to play", 100, 60, TEXT_SIZE + 10, TITLE_COLOR);
