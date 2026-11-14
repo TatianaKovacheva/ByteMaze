@@ -12,7 +12,7 @@
 [![Windows | macOS](https://img.shields.io/badge/runs%20on-Windows%20%7C%20macOS-94a3b8?style=flat-square)](#-build-and-run)
 [![Self-tests 13/13](https://img.shields.io/badge/self--tests-13%2F13%20passed-4ade80?style=flat-square)](#-tested)
 
-[Play it](#-build-and-run) · [How to play](#-how-to-play) · [How it works](#-how-it-works) · [Tests](#-tested) · [Team](#-team)
+[Play it](#-build-and-run) · [How to play](#-how-to-play) · [How it works](#-how-it-works) · [Tests](#-tested) · [Documents](#-documents) · [Team](#-team)
 
 <img src="docs/images/menu.png" alt="ByteMaze main menu with stars, a planet, the astronaut and the portal" width="720">
 
@@ -245,15 +245,36 @@ The game logic in `Maze.cpp` has no input or output at all: every function only 
 
 The full QA test plan with 12 test cases and 69 steps (all PASS) is in [`docs/QA_Test_Plan.docx`](docs/QA_Test_Plan.docx).
 
+## 📚 Documents
+
+| Document | What is in it |
+|---|---|
+| 📘 [Technical documentation](docs/Technical_Documentation.docx) | The game and its rules, the requirements of the task, the project structure, the algorithms with block diagrams and the part of every team member |
+| 🎞️ [Presentation](docs/ByteMaze_Presentation.pptx) | The slides for the defense |
+| ✅ [QA test plan](docs/QA_Test_Plan.docx) | 12 test cases with 69 steps and their results |
+
+<details>
+<summary><b>🧭 Block diagrams</b></summary>
+
+<br>
+
+<table>
+  <tr>
+    <td align="center"><a href="docs/images/flow-main.png"><img src="docs/images/flow-main.png" alt="Block diagram of the main program" width="240"></a><br><sub><b>The main program</b></sub></td>
+    <td align="center"><a href="docs/images/flow-generation.png"><img src="docs/images/flow-generation.png" alt="Block diagram of the maze generation" width="240"></a><br><sub><b>Maze generation</b></sub></td>
+    <td align="center"><a href="docs/images/flow-move.png"><img src="docs/images/flow-move.png" alt="Block diagram of one move" width="240"></a><br><sub><b>One move</b></sub></td>
+  </tr>
+</table>
+
+</details>
+
 ## 👥 Team
 
 <table>
   <tr>
-    <td align="center"><a href="https://github.com/TatianaKovacheva"><img src="https://github.com/TatianaKovacheva.png?size=100" width="72" alt=""><br><b>Tatiana Kovacheva</b></a><br><sub>Scrum trainer<br>main loop, reviews, merges</sub></td>
-    <td align="center"><a href="https://github.com/PNRusev24"><img src="https://github.com/PNRusev24.png?size=100" width="72" alt=""><br><b>Plamen Rusev</b></a><br><sub>Frontend<br>screens, drawing, controls</sub></td>
-    <td align="center"><a href="https://github.com/MustafaMustafa25"><img src="https://github.com/MustafaMustafa25.png?size=100" width="72" alt=""><br><b>Mustafa Husein</b></a><br><sub>Backend<br>memory, generation, moves</sub></td>
-    <td align="center"><a href="https://github.com/DimitarNyagalov"><img src="https://github.com/DimitarNyagalov.png?size=100" width="72" alt=""><br><b>Dimitar Nyagalov</b></a><br><sub>QA<br>self-tests, test plan</sub></td>
+    <td align="center"><a href="https://github.com/TatianaKovacheva"><img src="https://github.com/TatianaKovacheva.png?size=100" width="72" alt=""><br><b>Tatiana Kovacheva</b></a><br><sub>Scrum trainer<br></td>
+    <td align="center"><a href="https://github.com/PNRusev24"><img src="https://github.com/PNRusev24.png?size=100" width="72" alt=""><br><b>Plamen Rusev</b></a><br><sub>Frontend<br></td>
+    <td align="center"><a href="https://github.com/MustafaMustafa25"><img src="https://github.com/MustafaMustafa25.png?size=100" width="72" alt=""><br><b>Mustafa Husein</b></a><br><sub>Backend<br></td>
+    <td align="center"><a href="https://github.com/DimitarNyagalov"><img src="https://github.com/DimitarNyagalov.png?size=100" width="72" alt=""><br><b>Dimitar Nyagalov</b></a><br><sub>QA<br></td>
   </tr>
 </table>
-
-Planned with GitHub Issues, a Kanban board and weekly milestones. Every change went through a pull request.
